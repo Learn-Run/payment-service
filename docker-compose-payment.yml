@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  payment-service:
+    image: 009160040466.dkr.ecr.ap-northeast-2.amazonaws.com/learn-run/payment-service:latest
+    container_name: payment-service
+    env_file:
+      - .env
+    networks:
+      - shared-net
+
+networks:
+  shared-net:
+    external: true
