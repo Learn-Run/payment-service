@@ -1,4 +1,4 @@
-package com.unionclass.paymentservice.domain.infrastructure;
+package com.unionclass.paymentservice.domain.payment.infrastructure;
 
 import com.unionclass.paymentservice.domain.payment.entity.Payment;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -107,7 +107,13 @@ public enum ErrorCode {
     // payment : 8000 ~ 8099
     INVALID_PAYMENT_STATUS_VALUE(HttpStatus.BAD_REQUEST, false, 8000, "유효하지 않은 결제 상태입니다."),
     INVALID_PAYMENT_TYPE_VALUE(HttpStatus.BAD_REQUEST, false, 8001, "유효하지 않은 결제 유형입니다."),
-    ;
+    FAILED_TO_REQUEST_PAYMENT_AMOUNT(HttpStatus.INTERNAL_SERVER_ERROR, false, 8002, "결제 요청에 실패하였습니다."),
+    INVALID_REFUND_PROCESS_STATUS_VALUE(HttpStatus.BAD_REQUEST, false, 8003, "유효하지 않은 환불 처리 유형입니다."),
+    TOSS_NO_CHECKOUT_FIELD(HttpStatus.BAD_REQUEST, false, 8004, "토스 응답에 checkout 항목이 없습니다."),
+    TOSS_CHECKOUT_URL_MISSING(HttpStatus.BAD_REQUEST, false, 8005, "checkout URL 이 응답에 없습니다."),
+    TOSS_EMPTY_RESPONSE(HttpStatus.BAD_REQUEST, false, 8006, "toss 로 부터 결제 승인 응답을 받지 못했습니다."),
+    TOSS_PAYMENT_REJECTED(HttpStatus.BAD_REQUEST, false, 8007, "결제가 거절되었습니다. 사유를 확인해주세요."),
+    TOSS_API_CALL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, false, 8008, "결제 승인 시도 중 오류가 발생하였습니다.");
 
     private final HttpStatus httpStatus;
     private final boolean isSuccess;

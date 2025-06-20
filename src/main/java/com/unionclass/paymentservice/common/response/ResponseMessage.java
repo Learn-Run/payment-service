@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ResponseMessage {
 
-//    SUCCESS_SIGN_UP("회원가입에 성공하였습니다."),
-    ;
+    SUCCESS_CREATE_PAYMENT("결제 생성에 성공하였습니다."),
+    SUCCESS_CONFIRM_PAYMENT("결제 승인에 성공하였습니다.");
 
     private final String message;
 }
