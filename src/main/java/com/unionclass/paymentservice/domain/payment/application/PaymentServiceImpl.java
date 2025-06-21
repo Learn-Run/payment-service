@@ -6,25 +6,27 @@ import com.unionclass.paymentservice.common.config.TossPaymentConfig;
 import com.unionclass.paymentservice.common.exception.BaseException;
 import com.unionclass.paymentservice.common.exception.ErrorCode;
 import com.unionclass.paymentservice.common.util.NumericUuidGenerator;
+import com.unionclass.paymentservice.domain.payment.dto.in.CancelPaymentReqDto;
 import com.unionclass.paymentservice.domain.payment.dto.in.ConfirmPaymentReqDto;
 import com.unionclass.paymentservice.domain.payment.dto.in.CreatePaymentReqDto;
 import com.unionclass.paymentservice.domain.payment.dto.out.CreatePaymentResDto;
 import com.unionclass.paymentservice.domain.payment.entity.Payment;
-import com.unionclass.paymentservice.domain.payment.enums.PaymentStatus;
 import com.unionclass.paymentservice.domain.payment.infrastructure.PaymentRepository;
+import com.unionclass.paymentservice.domain.payment.infrastructure.RefundHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.http.HttpHeaders;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -35,6 +37,7 @@ import java.util.Optional;
 public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
+    private final RefundHistoryRepository refundHistoryRepository;
     private final TossPaymentConfig tossPaymentConfig;
     private final NumericUuidGenerator numericUuidGenerator;
     private final RestTemplate restTemplate;
@@ -120,6 +123,37 @@ public class PaymentServiceImpl implements PaymentService {
             log.warn("결제 승인 시도 중 오류 발생 - paymentKey: {}, message: {}",
                     confirmPaymentReqDto.getPaymentKey(), e.getMessage(), e);
             throw new BaseException(ErrorCode.TOSS_API_CALL_FAILED);
+        }
+    }
+
+    @Transactional
+    @Override
+    public void cancelPayment(CancelPaymentReqDto cancelPaymentReqDto) {
+
+        try {
+            Payment payment = paymentRepository.findByPaymentKey(cancelPaymentReqDto.getPaymentKey())
+                    .orElseThrow(() -> new BaseException(ErrorCode.FAILED_TO_FIND_PAYMENT_BY_PAYMENT_KEY));
+
+            payment.cancel();
+            refundHistoryRepository.save(cancelPaymentReqDto.toEntity(numericUuidGenerator.generate(), payment));
+        } catch (Exception e) {
+            throw new BaseException(ErrorCode.FAILED_TO_SAVE_PAYMENT_AND_REFUND_HISTORY);
+        }
+
+        HttpHeaders httpHeaders = tossPaymentConfig.getHeaders();
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("cancelReason", cancelPaymentReqDto.getCancelReason());
+
+        HttpEntity<Map<String, Object>> httpRequest = new HttpEntity<>(body, httpHeaders);
+
+        ResponseEntity<Map> response = restTemplate.postForEntity(
+                tossPaymentConfig.getBaseUrl() + "/{paymentKey}/cancel", httpRequest, Map.class, cancelPaymentReqDto.getPaymentKey());
+
+        if (response.getStatusCode().is2xxSuccessful()) {
+            log.info("toss 와의 통신 성공 및 환불 처리 완료 - paymentKey: {}", cancelPaymentReqDto.getPaymentKey());
+        } else {
+            throw new BaseException(ErrorCode.FAILED_TO_CALL_TOSS_API_FOR_REFUND);
         }
     }
 }

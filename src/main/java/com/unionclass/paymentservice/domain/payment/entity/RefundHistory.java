@@ -40,29 +40,26 @@ public class RefundHistory extends BaseEntity {
     @Column(nullable = false)
     private String paymentKey;
 
+    @Comment("환불 금액")
+    @Column(nullable = false)
+    private Long amount;
+
     @Comment("환불사유")
     @Column(nullable = false)
-    private String failReason;
-
-    @Comment("실패코드")
-    private String failCode;
+    private String cancelReason;
 
     @Comment("환불처리상태")
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private RefundProcessStatus refundProcessStatus;
 
-    @Comment("요청일시")
-    private LocalDateTime requestedAt;
-
     @Comment("승인일시")
     private LocalDateTime approvedAt;
 
     @Builder
     public RefundHistory(
-            Long id, Long uuid, Long paymentUuid, String memberUuid, String orderId,
-            String paymentKey, String failReason, String failCode, RefundProcessStatus refundProcessStatus,
-            LocalDateTime requestedAt, LocalDateTime approvedAt
+            Long id, Long uuid, Long paymentUuid, String memberUuid, String orderId, String paymentKey, Long amount,
+            String cancelReason, RefundProcessStatus refundProcessStatus, LocalDateTime approvedAt
     ) {
         this.id = id;
         this.uuid = uuid;
@@ -70,10 +67,9 @@ public class RefundHistory extends BaseEntity {
         this.memberUuid = memberUuid;
         this.orderId = orderId;
         this.paymentKey = paymentKey;
-        this.failReason = failReason;
-        this.failCode = failCode;
+        this.amount = amount;
+        this.cancelReason = cancelReason;
         this.refundProcessStatus = refundProcessStatus;
-        this.requestedAt = requestedAt;
         this.approvedAt = approvedAt;
     }
 }

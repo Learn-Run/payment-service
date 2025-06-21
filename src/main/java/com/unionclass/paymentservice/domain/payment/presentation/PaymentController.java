@@ -3,11 +3,14 @@ package com.unionclass.paymentservice.domain.payment.presentation;
 import com.unionclass.paymentservice.common.response.BaseResponseEntity;
 import com.unionclass.paymentservice.common.response.ResponseMessage;
 import com.unionclass.paymentservice.domain.payment.application.PaymentService;
+import com.unionclass.paymentservice.domain.payment.dto.in.CancelPaymentReqDto;
 import com.unionclass.paymentservice.domain.payment.dto.in.ConfirmPaymentReqDto;
 import com.unionclass.paymentservice.domain.payment.dto.in.CreatePaymentReqDto;
+import com.unionclass.paymentservice.domain.payment.vo.in.CancelPaymentReqVo;
 import com.unionclass.paymentservice.domain.payment.vo.in.ConfirmPaymentReqVo;
 import com.unionclass.paymentservice.domain.payment.vo.in.CreatePaymentReqVo;
 import com.unionclass.paymentservice.domain.payment.vo.out.CreatePaymentResVo;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +38,11 @@ public class PaymentController {
      * @param createPaymentReqVo
      * @return
      */
+    @Operation(
+            summary = "결제 생성",
+            description = """
+                    """
+    )
     @PostMapping
     public BaseResponseEntity<CreatePaymentResVo> createPayment(
             @RequestHeader("X-Member-UUID") String memberUuid,
@@ -59,5 +67,23 @@ public class PaymentController {
     ) {
         paymentService.confirmPayment(ConfirmPaymentReqDto.of(memberUuid, confirmPaymentReqVo));
         return new BaseResponseEntity<>(ResponseMessage.SUCCESS_CONFIRM_PAYMENT.getMessage());
+    }
+
+    /**
+     * 3. 결제 취소 (환불)
+     *
+     * @param memberUuid
+     * @param paymentKey
+     * @param cancelPaymentReqVo
+     * @return
+     */
+    @PostMapping("/{paymentKey}/cancel")
+    public BaseResponseEntity<Void> cancelPayment(
+            @RequestHeader("X-Member-UUID") String memberUuid,
+            @PathVariable String paymentKey,
+            @RequestBody CancelPaymentReqVo cancelPaymentReqVo
+    ) {
+        paymentService.cancelPayment(CancelPaymentReqDto.of(memberUuid, paymentKey, cancelPaymentReqVo));
+        return new BaseResponseEntity<>(ResponseMessage.SUCCESS_CANCEL_PAYMENT.getMessage());
     }
 }

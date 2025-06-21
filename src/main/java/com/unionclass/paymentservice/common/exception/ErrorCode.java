@@ -113,7 +113,11 @@ public enum ErrorCode {
     TOSS_CHECKOUT_URL_MISSING(HttpStatus.BAD_REQUEST, false, 8005, "checkout URL 이 응답에 없습니다."),
     TOSS_EMPTY_RESPONSE(HttpStatus.BAD_REQUEST, false, 8006, "toss 로 부터 결제 승인 응답을 받지 못했습니다."),
     TOSS_PAYMENT_REJECTED(HttpStatus.BAD_REQUEST, false, 8007, "결제가 거절되었습니다. 사유를 확인해주세요."),
-    TOSS_API_CALL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, false, 8008, "결제 승인 시도 중 오류가 발생하였습니다.");
+    TOSS_API_CALL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, false, 8008, "결제 승인 시도 중 오류가 발생하였습니다."),
+    FAILED_TO_FIND_PAYMENT_BY_PAYMENT_KEY(HttpStatus.BAD_REQUEST, false, 8009, "해당 PaymentKey 로 결제 정보를 찾을 수 없습니다."),
+    FAILED_TO_CANCEL_PAYMENT(HttpStatus.INTERNAL_SERVER_ERROR, false, 8010, "결제 환불 처리에 실패하였습니다."),
+    FAILED_TO_CALL_TOSS_API_FOR_REFUND(HttpStatus.INTERNAL_SERVER_ERROR, false, 8011, "환불 처리를 위한 토스와의 통신에 실패하였습니다."),
+    FAILED_TO_SAVE_PAYMENT_AND_REFUND_HISTORY(HttpStatus.INTERNAL_SERVER_ERROR, false, 8012, "환불 처리에 대한 결제 및 환불 기록 저장에 실패하였습니다.");
 
     private final HttpStatus httpStatus;
     private final boolean isSuccess;

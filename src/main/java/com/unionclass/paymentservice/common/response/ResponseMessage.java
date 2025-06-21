@@ -8,7 +8,8 @@ import lombok.RequiredArgsConstructor;
 public enum ResponseMessage {
 
     SUCCESS_CREATE_PAYMENT("결제 생성에 성공하였습니다."),
-    SUCCESS_CONFIRM_PAYMENT("결제 승인에 성공하였습니다.");
+    SUCCESS_CONFIRM_PAYMENT("결제 승인에 성공하였습니다."),
+    SUCCESS_CANCEL_PAYMENT("결제 취소 및 환불에 성공하였습니다.");
 
     private final String message;
 }

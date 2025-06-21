@@ -62,9 +62,6 @@ public class Payment extends BaseEntity {
     @Comment("결제실패사유")
     private String failReason;
 
-    @Comment("요청일시")
-    private LocalDateTime requestedAt;
-
     @Comment("승인일시")
     private LocalDateTime approvedAt;
 
@@ -75,7 +72,7 @@ public class Payment extends BaseEntity {
     public Payment(
             Long id, Long uuid, String memberUuid, String orderId, String orderName, PaymentMethod paymentMethod,
             Long amount, PaymentStatus paymentStatus, String paymentKey, String failCode, String failReason,
-            LocalDateTime requestedAt, LocalDateTime approvedAt, LocalDateTime canceledAt) {
+            LocalDateTime approvedAt, LocalDateTime canceledAt) {
         this.id = id;
         this.uuid = uuid;
         this.memberUuid = memberUuid;
@@ -87,7 +84,6 @@ public class Payment extends BaseEntity {
         this.paymentKey = paymentKey;
         this.failCode = failCode;
         this.failReason = failReason;
-        this.requestedAt = requestedAt;
         this.approvedAt = approvedAt;
         this.canceledAt = canceledAt;
     }
@@ -101,5 +97,10 @@ public class Payment extends BaseEntity {
 
     public void approvePayment(LocalDateTime approvedAt) {
         this.approvedAt = approvedAt;
+    }
+
+    public void cancel() {
+        this.paymentStatus = PaymentStatus.CANCELED;
+        this.canceledAt = LocalDateTime.now();
     }
 }

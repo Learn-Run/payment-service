@@ -11,9 +11,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum RefundProcessStatus {
 
-    REFUND_PROCESS_STATUS_PENDING("환불대기중"),
-    REFUND_PROCESS_STATUS_COMPLETED("환불완료"),
-    REFUND_PROCESS_STATUS_FAILED("환불실패"),
+    PENDING("환불대기중"),
+    COMPLETED("환불완료"),
+    FAILED("환불실패"),
     ;
 
     private final String refundProcessStatus;
