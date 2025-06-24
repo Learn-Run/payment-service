@@ -13,7 +13,8 @@ import org.springframework.context.annotation.Configuration;
 
 @OpenAPIDefinition(
         tags = {
-                @Tag(name = "payment", description = "결제 관련 API 입니다.")
+                @Tag(name = "payment", description = "결제 관련 API 입니다."),
+                @Tag(name = "order", description = "주문 관련 API 입니다.")
         }
 )
 @Configuration
