@@ -5,11 +5,11 @@ import com.unionclass.paymentservice.common.response.ResponseMessage;
 import com.unionclass.paymentservice.domain.payment.application.PaymentService;
 import com.unionclass.paymentservice.domain.payment.dto.in.CancelPaymentReqDto;
 import com.unionclass.paymentservice.domain.payment.dto.in.ConfirmPaymentReqDto;
-import com.unionclass.paymentservice.domain.payment.dto.in.CreatePaymentReqDto;
+import com.unionclass.paymentservice.domain.payment.dto.in.RequestPaymentReqDto;
 import com.unionclass.paymentservice.domain.payment.vo.in.CancelPaymentReqVo;
 import com.unionclass.paymentservice.domain.payment.vo.in.ConfirmPaymentReqVo;
-import com.unionclass.paymentservice.domain.payment.vo.in.CreatePaymentReqVo;
-import com.unionclass.paymentservice.domain.payment.vo.out.CreatePaymentResVo;
+import com.unionclass.paymentservice.domain.payment.vo.in.RequestPaymentReqVo;
+import com.unionclass.paymentservice.domain.payment.vo.out.RequestPaymentResVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -26,20 +26,20 @@ public class PaymentController {
     /**
      * /api/v1/payment
      *
-     * 1. 결제 생성
+     * 1. 결제 요청
      * 2. 결제 승인
      * 3. 결제 취소 (환불)
      */
 
     /**
-     * 1. 결제 생성
+     * 1. 결제 요청
      *
      * @param memberUuid
-     * @param createPaymentReqVo
+     * @param requestPaymentReqVo
      * @return
      */
     @Operation(
-            summary = "결제 생성",
+            summary = "결제 요청",
             description = """
                     사용자가 포인트에 대한 결제를 시작하는 API 입니다.
                     이 API 는 TossPayments 의 결제 생성 API 를 호출하여,
@@ -71,13 +71,13 @@ public class PaymentController {
                     """
     )
     @PostMapping
-    public BaseResponseEntity<CreatePaymentResVo> createPayment(
+    public BaseResponseEntity<RequestPaymentResVo> createPayment(
             @RequestHeader("X-Member-UUID") String memberUuid,
-            @RequestBody CreatePaymentReqVo createPaymentReqVo
+            @RequestBody RequestPaymentReqVo requestPaymentReqVo
     ) {
         return new BaseResponseEntity<>(
-                ResponseMessage.SUCCESS_CREATE_PAYMENT.getMessage(),
-                paymentService.createPayment(CreatePaymentReqDto.of(memberUuid, createPaymentReqVo)).toVo());
+                ResponseMessage.SUCCESS_REQUEST_PAYMENT.getMessage(),
+                paymentService.requestPayment(RequestPaymentReqDto.of(memberUuid, requestPaymentReqVo)).toVo());
     }
 
     /**
@@ -115,7 +115,7 @@ public class PaymentController {
                     """
     )
     @PostMapping("/confirm")
-    public BaseResponseEntity<CreatePaymentResVo> confirmPayment(
+    public BaseResponseEntity<RequestPaymentResVo> confirmPayment(
             @RequestHeader("X-Member-UUID") String memberUuid,
             @RequestBody ConfirmPaymentReqVo confirmPaymentReqVo
     ) {

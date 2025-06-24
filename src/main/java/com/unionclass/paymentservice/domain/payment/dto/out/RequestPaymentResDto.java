@@ -1,32 +1,32 @@
 package com.unionclass.paymentservice.domain.payment.dto.out;
 
-import com.unionclass.paymentservice.domain.payment.vo.out.CreatePaymentResVo;
+import com.unionclass.paymentservice.domain.payment.vo.out.RequestPaymentResVo;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class CreatePaymentResDto {
+public class RequestPaymentResDto {
 
     private String orderId;
     private String checkoutUrl;
 
     @Builder
-    public CreatePaymentResDto(String orderId, String checkoutUrl) {
+    public RequestPaymentResDto(String orderId, String checkoutUrl) {
         this.orderId = orderId;
         this.checkoutUrl = checkoutUrl;
     }
 
-    public static CreatePaymentResDto of(String orderId, String checkoutUrl) {
-        return CreatePaymentResDto.builder()
+    public static RequestPaymentResDto of(String orderId, String checkoutUrl) {
+        return RequestPaymentResDto.builder()
                 .orderId(orderId)
                 .checkoutUrl(checkoutUrl)
                 .build();
     }
 
-    public CreatePaymentResVo toVo() {
-        return CreatePaymentResVo.builder()
+    public RequestPaymentResVo toVo() {
+        return RequestPaymentResVo.builder()
                 .orderId(orderId)
                 .checkoutUrl(checkoutUrl)
                 .build();

@@ -8,8 +8,8 @@ import com.unionclass.paymentservice.common.exception.ErrorCode;
 import com.unionclass.paymentservice.common.util.NumericUuidGenerator;
 import com.unionclass.paymentservice.domain.payment.dto.in.CancelPaymentReqDto;
 import com.unionclass.paymentservice.domain.payment.dto.in.ConfirmPaymentReqDto;
-import com.unionclass.paymentservice.domain.payment.dto.in.CreatePaymentReqDto;
-import com.unionclass.paymentservice.domain.payment.dto.out.CreatePaymentResDto;
+import com.unionclass.paymentservice.domain.payment.dto.in.RequestPaymentReqDto;
+import com.unionclass.paymentservice.domain.payment.dto.out.RequestPaymentResDto;
 import com.unionclass.paymentservice.domain.payment.entity.Payment;
 import com.unionclass.paymentservice.domain.payment.infrastructure.PaymentRepository;
 import com.unionclass.paymentservice.domain.payment.infrastructure.RefundHistoryRepository;
@@ -43,15 +43,15 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Transactional
     @Override
-    public CreatePaymentResDto createPayment(CreatePaymentReqDto createPaymentReqDto) {
+    public RequestPaymentResDto requestPayment(RequestPaymentReqDto requestPaymentReqDto) {
 
         HttpHeaders httpHeaders = tossPaymentConfig.getHeaders();
 
         Map<String, Object> body = new HashMap<>();
-        body.put("orderId", createPaymentReqDto.getOrderId());
-        body.put("orderName", createPaymentReqDto.getOrderName());
-        body.put("amount", createPaymentReqDto.getAmount());
-        body.put("method", createPaymentReqDto.getPaymentMethod());
+        body.put("orderId", requestPaymentReqDto.getOrderId());
+        body.put("orderName", requestPaymentReqDto.getOrderName());
+        body.put("amount", requestPaymentReqDto.getAmount());
+        body.put("method", requestPaymentReqDto.getPaymentMethod());
         body.put("successUrl", tossPaymentConfig.getSuccessUrl());
         body.put("failUrl", tossPaymentConfig.getFailUrl());
         body.put("validHours", 1);
@@ -74,7 +74,7 @@ public class PaymentServiceImpl implements PaymentService {
         }
         String checkoutUrl = checkout.get("url").toString();
 
-        return CreatePaymentResDto.of(createPaymentReqDto.getOrderId(), checkoutUrl);
+        return RequestPaymentResDto.of(requestPaymentReqDto.getOrderId(), checkoutUrl);
     }
 
     @Transactional

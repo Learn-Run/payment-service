@@ -6,13 +6,13 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class CreatePaymentResVo {
+public class RequestPaymentResVo {
 
     private String orderId;
     private String checkoutUrl;
 
     @Builder
-    public CreatePaymentResVo(String orderId, String checkoutUrl) {
+    public RequestPaymentResVo(String orderId, String checkoutUrl) {
         this.orderId = orderId;
         this.checkoutUrl = checkoutUrl;
     }
