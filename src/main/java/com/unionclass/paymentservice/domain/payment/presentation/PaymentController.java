@@ -70,8 +70,8 @@ public class PaymentController {
                     - INVALID_PAYMENT_METHOD : 허용되지 않은 결제 수단이 요청된 경우
                     """
     )
-    @PostMapping
-    public BaseResponseEntity<RequestPaymentResVo> createPayment(
+    @PostMapping("/request")
+    public BaseResponseEntity<RequestPaymentResVo> requestPayment(
             @RequestHeader("X-Member-UUID") String memberUuid,
             @RequestBody RequestPaymentReqVo requestPaymentReqVo
     ) {
