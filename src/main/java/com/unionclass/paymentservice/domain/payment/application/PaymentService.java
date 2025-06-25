@@ -2,7 +2,9 @@ package com.unionclass.paymentservice.domain.payment.application;
 
 import com.unionclass.paymentservice.domain.payment.dto.in.CancelPaymentReqDto;
 import com.unionclass.paymentservice.domain.payment.dto.in.ConfirmPaymentReqDto;
+import com.unionclass.paymentservice.domain.payment.dto.in.GetPaymentDetailsReqDto;
 import com.unionclass.paymentservice.domain.payment.dto.in.RequestPaymentReqDto;
+import com.unionclass.paymentservice.domain.payment.dto.out.GetPaymentDetailsResDto;
 import com.unionclass.paymentservice.domain.payment.dto.out.RequestPaymentResDto;
 
 public interface PaymentService {
@@ -10,4 +12,5 @@ public interface PaymentService {
     RequestPaymentResDto requestPayment(RequestPaymentReqDto requestPaymentReqDto);
     void confirmPayment(ConfirmPaymentReqDto confirmPaymentReqDto);
     void cancelPayment(CancelPaymentReqDto cancelPaymentReqDto);
+    GetPaymentDetailsResDto getPaymentDetailsByPaymentKey(GetPaymentDetailsReqDto dto);
 }

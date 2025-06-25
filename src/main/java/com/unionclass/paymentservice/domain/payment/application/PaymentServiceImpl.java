@@ -2,13 +2,19 @@ package com.unionclass.paymentservice.domain.payment.application;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.unionclass.paymentservice.common.config.TossPaymentConfig;
 import com.unionclass.paymentservice.common.exception.BaseException;
 import com.unionclass.paymentservice.common.exception.ErrorCode;
+import com.unionclass.paymentservice.common.toss.util.TossHttpRequestBuilder;
 import com.unionclass.paymentservice.common.util.NumericUuidGenerator;
 import com.unionclass.paymentservice.domain.payment.dto.in.CancelPaymentReqDto;
 import com.unionclass.paymentservice.domain.payment.dto.in.ConfirmPaymentReqDto;
+import com.unionclass.paymentservice.domain.payment.dto.in.GetPaymentDetailsReqDto;
 import com.unionclass.paymentservice.domain.payment.dto.in.RequestPaymentReqDto;
+import com.unionclass.paymentservice.domain.payment.dto.out.GetPaymentDetailsResDto;
 import com.unionclass.paymentservice.domain.payment.dto.out.RequestPaymentResDto;
 import com.unionclass.paymentservice.domain.payment.entity.Payment;
 import com.unionclass.paymentservice.domain.payment.infrastructure.PaymentRepository;
@@ -17,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +47,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final TossPaymentConfig tossPaymentConfig;
     private final NumericUuidGenerator numericUuidGenerator;
     private final RestTemplate restTemplate;
+    private final TossHttpRequestBuilder tossHttpRequestBuilder;
 
     @Transactional
     @Override
@@ -81,6 +89,7 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public void confirmPayment(ConfirmPaymentReqDto confirmPaymentReqDto) {
         try {
+
             HttpHeaders httpHeaders = tossPaymentConfig.getHeaders();
 
             Map<String, Object> body = new HashMap<>();
@@ -134,7 +143,9 @@ public class PaymentServiceImpl implements PaymentService {
                     .orElseThrow(() -> new BaseException(ErrorCode.FAILED_TO_FIND_PAYMENT_BY_PAYMENT_KEY));
 
             payment.cancel();
+
             refundHistoryRepository.save(cancelPaymentReqDto.toEntity(numericUuidGenerator.generate(), payment));
+
         } catch (Exception e) {
             throw new BaseException(ErrorCode.FAILED_TO_SAVE_PAYMENT_AND_REFUND_HISTORY);
         }
@@ -150,9 +161,41 @@ public class PaymentServiceImpl implements PaymentService {
                 tossPaymentConfig.getBaseUrl() + "/{paymentKey}/cancel", httpRequest, Map.class, cancelPaymentReqDto.getPaymentKey());
 
         if (response.getStatusCode().is2xxSuccessful()) {
+
             log.info("toss 와의 통신 성공 및 환불 처리 완료 - paymentKey: {}", cancelPaymentReqDto.getPaymentKey());
+
         } else {
+
             throw new BaseException(ErrorCode.FAILED_TO_CALL_TOSS_API_FOR_REFUND);
+
         }
+    }
+
+    @Override
+    public GetPaymentDetailsResDto getPaymentDetailsByPaymentKey(GetPaymentDetailsReqDto dto) {
+
+        ResponseEntity<Map> response = restTemplate.exchange(
+                tossPaymentConfig.getBaseUrl() + "/" + dto.getPaymentKey(),
+                HttpMethod.GET,
+                new HttpEntity<>(tossHttpRequestBuilder.buildHeaders()),
+                Map.class
+        );
+
+        if (!response.getStatusCode().is2xxSuccessful()) {
+
+            log.warn("결제 상세 정보 단건 조회 실패 - toss 와의 통신 실패");
+
+            throw new BaseException(ErrorCode.FAILED_TO_FIND_PAYMENT_DETAILS_BY_PAYMENT_KEY);
+
+        }
+
+        Map<String, Object> responseBody = response.getBody();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new ParameterNamesModule());
+        objectMapper.registerModule(new Jdk8Module());
+        objectMapper.registerModule(new JavaTimeModule());
+
+        return objectMapper.convertValue(responseBody, GetPaymentDetailsResDto.class);
     }
 }

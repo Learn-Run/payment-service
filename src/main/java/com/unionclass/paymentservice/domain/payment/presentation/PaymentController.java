@@ -5,10 +5,12 @@ import com.unionclass.paymentservice.common.response.ResponseMessage;
 import com.unionclass.paymentservice.domain.payment.application.PaymentService;
 import com.unionclass.paymentservice.domain.payment.dto.in.CancelPaymentReqDto;
 import com.unionclass.paymentservice.domain.payment.dto.in.ConfirmPaymentReqDto;
+import com.unionclass.paymentservice.domain.payment.dto.in.GetPaymentDetailsReqDto;
 import com.unionclass.paymentservice.domain.payment.dto.in.RequestPaymentReqDto;
 import com.unionclass.paymentservice.domain.payment.vo.in.CancelPaymentReqVo;
 import com.unionclass.paymentservice.domain.payment.vo.in.ConfirmPaymentReqVo;
 import com.unionclass.paymentservice.domain.payment.vo.in.RequestPaymentReqVo;
+import com.unionclass.paymentservice.domain.payment.vo.out.GetPaymentDetailsResVo;
 import com.unionclass.paymentservice.domain.payment.vo.out.RequestPaymentResVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,6 +31,7 @@ public class PaymentController {
      * 1. 결제 요청
      * 2. 결제 승인
      * 3. 결제 취소 (환불)
+     * 4. paymentKey 로 결제 상세정보 단건 조회
      */
 
     /**
@@ -169,5 +172,22 @@ public class PaymentController {
     ) {
         paymentService.cancelPayment(CancelPaymentReqDto.of(memberUuid, paymentKey, cancelPaymentReqVo));
         return new BaseResponseEntity<>(ResponseMessage.SUCCESS_CANCEL_PAYMENT.getMessage());
+    }
+
+    /**
+     * 4. paymentKey 로 결제 상세정보 단건 조회
+     *
+     * @param memberUuid
+     * @param paymentKey
+     * @return
+     */
+    @GetMapping("/{paymentKey}")
+    public BaseResponseEntity<GetPaymentDetailsResVo> getPaymentDetailsByPaymentKey(
+            @RequestHeader("X-Member-UUID") String memberUuid,
+            @PathVariable String paymentKey
+    ) {
+        return new BaseResponseEntity<>(
+                ResponseMessage.SUCCESS_GET_PAYMENT_DETAILS_BY_PAYMENT_KEY.getMessage(),
+                paymentService.getPaymentDetailsByPaymentKey(GetPaymentDetailsReqDto.of(memberUuid, paymentKey)).toVo());
     }
 }
