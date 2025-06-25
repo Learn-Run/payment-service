@@ -8,7 +8,7 @@ import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.unionclass.paymentservice.common.config.TossPaymentConfig;
 import com.unionclass.paymentservice.common.exception.BaseException;
 import com.unionclass.paymentservice.common.exception.ErrorCode;
-import com.unionclass.paymentservice.common.toss.util.TossHttpRequestBuilder;
+import com.unionclass.paymentservice.domain.payment.util.TossHttpRequestBuilder;
 import com.unionclass.paymentservice.common.util.NumericUuidGenerator;
 import com.unionclass.paymentservice.domain.payment.dto.in.CancelPaymentReqDto;
 import com.unionclass.paymentservice.domain.payment.dto.in.ConfirmPaymentReqDto;
@@ -21,6 +21,7 @@ import com.unionclass.paymentservice.domain.payment.infrastructure.PaymentReposi
 import com.unionclass.paymentservice.domain.payment.infrastructure.RefundHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -47,29 +48,20 @@ public class PaymentServiceImpl implements PaymentService {
     private final TossPaymentConfig tossPaymentConfig;
     private final NumericUuidGenerator numericUuidGenerator;
     private final RestTemplate restTemplate;
-    private final TossHttpRequestBuilder tossHttpRequestBuilder;
+    private final TossHttpRequestBuilder httpRequestBuilder;
 
     @Transactional
     @Override
-    public RequestPaymentResDto requestPayment(RequestPaymentReqDto requestPaymentReqDto) {
+    public RequestPaymentResDto requestPayment(RequestPaymentReqDto dto) {
 
-        HttpHeaders httpHeaders = tossPaymentConfig.getHeaders();
+        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                tossPaymentConfig.getBaseUrl(),
+                HttpMethod.POST,
+                httpRequestBuilder.buildEntity(httpRequestBuilder.buildRequestPaymentPayload(dto)),
+                new ParameterizedTypeReference<>() {}
+        );
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("orderId", requestPaymentReqDto.getOrderId());
-        body.put("orderName", requestPaymentReqDto.getOrderName());
-        body.put("amount", requestPaymentReqDto.getAmount());
-        body.put("method", requestPaymentReqDto.getPaymentMethod());
-        body.put("successUrl", tossPaymentConfig.getSuccessUrl());
-        body.put("failUrl", tossPaymentConfig.getFailUrl());
-        body.put("validHours", 1);
-
-        HttpEntity<Map<String, Object>> httpRequest = new HttpEntity<>(body, httpHeaders);
-
-        ResponseEntity<Map> response = restTemplate.postForEntity(
-                tossPaymentConfig.getBaseUrl(), httpRequest, Map.class);
-
-        Map responseBody = response.getBody();
+        Map<String, Object> responseBody = response.getBody();
 
         Object checkoutObject =responseBody.get("checkout");
 
@@ -82,7 +74,7 @@ public class PaymentServiceImpl implements PaymentService {
         }
         String checkoutUrl = checkout.get("url").toString();
 
-        return RequestPaymentResDto.of(requestPaymentReqDto.getOrderId(), checkoutUrl);
+        return RequestPaymentResDto.of(dto.getOrderId(), checkoutUrl);
     }
 
     @Transactional
@@ -177,7 +169,7 @@ public class PaymentServiceImpl implements PaymentService {
         ResponseEntity<Map> response = restTemplate.exchange(
                 tossPaymentConfig.getBaseUrl() + "/" + dto.getPaymentKey(),
                 HttpMethod.GET,
-                new HttpEntity<>(tossHttpRequestBuilder.buildHeaders()),
+                new HttpEntity<>(httpRequestBuilder.buildHeaders()),
                 Map.class
         );
 

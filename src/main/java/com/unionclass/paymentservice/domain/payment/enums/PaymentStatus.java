@@ -11,13 +11,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum PaymentStatus {
 
-    READY("결제준비중"),
-    IN_PROGRESS("결제중"),
-    WAITING_FOR_DEPOSIT("입금대기중"),
-    DONE("결제완료"),
-    CANCELED("결제취소"),
-    ABORTED("결제실패"),
-    EXPIRED("결제만료")
+    READY("READY"),
+    IN_PROGRESS("IN_PROGRESS"),
+    WAITING_FOR_DEPOSIT("WAITING_FOR_DEPOSIT"),
+    DONE("DONE"),
+    CANCELED("CANCELED"),
+    ABORTED("ABORTED"),
+    EXPIRED("EXPIRED")
     ;
 
     private final String paymentStatus;

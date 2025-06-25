@@ -11,10 +11,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum PaymentMethod {
 
-    CARD("카드"),
-    BANK_TRANSFER("계좌이체"),
-    MOBILE("휴대폰결제"),
-    VIRTUAL_ACCOUNT("가상계좌")
+    CARD("CARD"),
+    BANK_TRANSFER("BANK_TRANSFER"),
+    MOBILE("MOBILE"),
+    VIRTUAL_ACCOUNT("VIRTUAL_ACCOUNT")
     ;
 
     private final String paymentType;
