@@ -32,12 +32,11 @@ public class TossHttpRequestBuilderImpl implements TossHttpRequestBuilder {
         body.put("orderId", dto.getOrderId());
         body.put("orderName", dto.getOrderName());
         body.put("amount", dto.getAmount());
-        body.put("method", dto.getPaymentMethod());
+        body.put("method", dto.getMethod());
         body.put("successUrl", config.getSuccessUrl());
         body.put("failUrl", config.getFailUrl());
         body.put("validHours", 1);
 
         return body;
     }
-
 }

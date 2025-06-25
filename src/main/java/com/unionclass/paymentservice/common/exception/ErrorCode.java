@@ -119,6 +119,7 @@ public enum ErrorCode {
     FAILED_TO_CALL_TOSS_API_FOR_REFUND(HttpStatus.INTERNAL_SERVER_ERROR, false, 8011, "환불 처리를 위한 토스와의 통신에 실패하였습니다."),
     FAILED_TO_SAVE_PAYMENT_AND_REFUND_HISTORY(HttpStatus.INTERNAL_SERVER_ERROR, false, 8012, "환불 처리에 대한 결제 및 환불 기록 저장에 실패하였습니다."),
     FAILED_TO_FIND_PAYMENT_DETAILS_BY_PAYMENT_KEY(HttpStatus.INTERNAL_SERVER_ERROR, false, 8013, "paymentKey 를 통한 결제 상세정보 단건 조회에 실패하였습니다."),
+    FAILED_TO_REQUEST_PAYMENT(HttpStatus.INTERNAL_SERVER_ERROR, false, 8014, "결제 요청에 실패하였습니다."),
 
     // order : 8500 ~
     INVALID_ORDER_STATUS_VALUE(HttpStatus.BAD_REQUEST, false, 8500, "유효하지 않은 주문 상태입니다."),

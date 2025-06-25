@@ -11,28 +11,22 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RequestPaymentResDto {
 
-    private String mId;
-    private String orderId;
-    private String checkoutUrl;
+    private String url;
 
     @Builder
-    public RequestPaymentResDto(String mId, String orderId, String checkoutUrl) {
-        this.mId = mId;
-        this.orderId = orderId;
-        this.checkoutUrl = checkoutUrl;
+    public RequestPaymentResDto(String url) {
+        this.url = url;
     }
 
-    public static RequestPaymentResDto of(String orderId, String checkoutUrl) {
+    public static RequestPaymentResDto from(String url) {
         return RequestPaymentResDto.builder()
-                .orderId(orderId)
-                .checkoutUrl(checkoutUrl)
+                .url(url)
                 .build();
     }
 
     public RequestPaymentResVo toVo() {
         return RequestPaymentResVo.builder()
-                .orderId(orderId)
-                .checkoutUrl(checkoutUrl)
+                .checkoutUrl(url)
                 .build();
     }
 }

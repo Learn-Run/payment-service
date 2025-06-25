@@ -1,5 +1,6 @@
 package com.unionclass.paymentservice.common.util;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -20,5 +21,9 @@ public class JsonMapper {
 
     public <T> T convert(Object source, Class<T> targetType) {
         return objectMapper.convertValue(source, targetType);
+    }
+
+    public <T> T convert(Object source, TypeReference<T> typeReference) {
+        return objectMapper.convertValue(source, typeReference);
     }
 }

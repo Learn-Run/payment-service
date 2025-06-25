@@ -40,7 +40,7 @@ public class CancelPaymentReqDto {
                 .memberUuid(memberUuid)
                 .orderId(payment.getOrderId())
                 .paymentKey(paymentKey)
-                .amount(payment.getAmount())
+                .amount(payment.getTotalAmount())
                 .cancelReason(cancelReason)
                 .refundProcessStatus(RefundProcessStatus.COMPLETED)
                 .approvedAt(LocalDateTime.now())

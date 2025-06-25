@@ -1,5 +1,6 @@
 package com.unionclass.paymentservice.domain.payment.dto.in;
 
+import com.unionclass.paymentservice.domain.payment.entity.Payment;
 import com.unionclass.paymentservice.domain.payment.enums.Method;
 import com.unionclass.paymentservice.domain.payment.enums.Status;
 import lombok.Getter;
@@ -9,8 +10,6 @@ import java.time.LocalDateTime;
 @Getter
 public class CreatePaymentReqDto {
 
-    private Long uuid;
-    private String memberUuid;
     private String orderId;
     private String orderName;
     private String paymentKey;
@@ -26,4 +25,24 @@ public class CreatePaymentReqDto {
     private String checkout;
     private boolean isPartialCancelable;
 
+    public Payment toEntity(Long uuid, String memberUuid) {
+        return Payment.builder()
+                .uuid(uuid)
+                .memberUuid(memberUuid)
+                .orderId(orderId)
+                .orderName(orderName)
+                .paymentKey(paymentKey)
+                .method(method)
+                .status(status)
+                .totalAmount(totalAmount)
+                .suppliedAmount(suppliedAmount)
+                .vat(vat)
+                .taxFreeAmount(taxFreeAmount)
+                .country(country)
+                .currency(currency)
+                .requestedAt(requestedAt)
+                .checkout(checkout)
+                .isPartialCancelable(isPartialCancelable)
+                .build();
+    }
 }

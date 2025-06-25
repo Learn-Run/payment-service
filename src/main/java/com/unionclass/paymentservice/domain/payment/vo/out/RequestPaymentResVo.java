@@ -8,12 +8,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RequestPaymentResVo {
 
-    private String orderId;
     private String checkoutUrl;
 
     @Builder
-    public RequestPaymentResVo(String orderId, String checkoutUrl) {
-        this.orderId = orderId;
+    public RequestPaymentResVo(String checkoutUrl) {
         this.checkoutUrl = checkoutUrl;
     }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.unionclass.paymentservice.common.config.TossPaymentConfig;
 import com.unionclass.paymentservice.common.exception.BaseException;
 import com.unionclass.paymentservice.common.exception.ErrorCode;
@@ -32,6 +33,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -47,23 +49,37 @@ public class PaymentServiceImpl implements PaymentService {
     private final RestTemplate restTemplate;
     private final TossHttpRequestBuilder httpRequestBuilder;
     private final JsonMapper jsonMapper;
+    private final NumericUuidGenerator uuidGenerator;
 
     @Transactional
     @Override
     public RequestPaymentResDto requestPayment(RequestPaymentReqDto dto) {
 
-        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
-                tossPaymentConfig.getBaseUrl(),
-                HttpMethod.POST,
-                httpRequestBuilder.buildEntity(httpRequestBuilder.buildRequestPaymentPayload(dto)),
-                new ParameterizedTypeReference<>() {}
-        );
+        try {
 
-        Map<String, Object> responseBody = response.getBody();
+            return RequestPaymentResDto.from(
+                    jsonMapper.convert(
+                                    Objects.requireNonNull(
+                                            restTemplate.exchange(
+                                                    tossPaymentConfig.getBaseUrl(),
+                                                    HttpMethod.POST,
+                                                    httpRequestBuilder.buildEntity(httpRequestBuilder.buildRequestPaymentPayload(dto)),
+                                                    new ParameterizedTypeReference<Map<String, Object>>() {
+                                                    }
 
-        jsonMapper.convert(responseBody, CreatePaymentReqDto.class);
+                                            ).getBody()
+                                    ).get("checkout"), new TypeReference<Map<String, Object>>() {
+                                    })
+                            .get("url")
+                            .toString());
 
-        return jsonMapper.convert(responseBody, RequestPaymentResDto.class);
+        } catch (Exception e) {
+
+            log.warn("결제 요청 실패 - memberUuid: {}, orderId: {}, message: {}",
+                    dto.getMemberUuid(), dto.getOrderId(), e.getMessage(), e);
+
+            throw new BaseException(ErrorCode.FAILED_TO_REQUEST_PAYMENT);
+        }
     }
 
     @Transactional
