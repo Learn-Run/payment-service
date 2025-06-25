@@ -1,6 +1,5 @@
 package com.unionclass.paymentservice.domain.payment.vo.in;
 
-import com.unionclass.paymentservice.domain.payment.enums.PaymentMethod;
 import lombok.Getter;
 
 @Getter

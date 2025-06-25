@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum PaymentStatus {
+public enum Status {
 
     READY("READY"),
     IN_PROGRESS("IN_PROGRESS"),
@@ -20,16 +20,16 @@ public enum PaymentStatus {
     EXPIRED("EXPIRED")
     ;
 
-    private final String paymentStatus;
+    private final String status;
 
     @JsonValue
-    public String getStatus() { return paymentStatus; }
+    public String getStatus() { return status; }
 
     @JsonCreator
-    public static PaymentStatus fromString(String value) {
-        for (PaymentStatus paymentStatus : PaymentStatus.values()) {
-            if (paymentStatus.paymentStatus.equals(value)) {
-                return paymentStatus;
+    public static Status fromString(String value) {
+        for (Status status : Status.values()) {
+            if (status.status.equals(value)) {
+                return status;
             }
         }
         throw new BaseException(ErrorCode.INVALID_PAYMENT_STATUS_VALUE);

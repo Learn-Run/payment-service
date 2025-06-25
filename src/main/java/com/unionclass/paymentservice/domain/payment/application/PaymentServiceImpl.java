@@ -1,6 +1,5 @@
 package com.unionclass.paymentservice.domain.payment.application;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -8,12 +7,10 @@ import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.unionclass.paymentservice.common.config.TossPaymentConfig;
 import com.unionclass.paymentservice.common.exception.BaseException;
 import com.unionclass.paymentservice.common.exception.ErrorCode;
+import com.unionclass.paymentservice.common.util.JsonMapper;
+import com.unionclass.paymentservice.domain.payment.dto.in.*;
 import com.unionclass.paymentservice.domain.payment.util.TossHttpRequestBuilder;
 import com.unionclass.paymentservice.common.util.NumericUuidGenerator;
-import com.unionclass.paymentservice.domain.payment.dto.in.CancelPaymentReqDto;
-import com.unionclass.paymentservice.domain.payment.dto.in.ConfirmPaymentReqDto;
-import com.unionclass.paymentservice.domain.payment.dto.in.GetPaymentDetailsReqDto;
-import com.unionclass.paymentservice.domain.payment.dto.in.RequestPaymentReqDto;
 import com.unionclass.paymentservice.domain.payment.dto.out.GetPaymentDetailsResDto;
 import com.unionclass.paymentservice.domain.payment.dto.out.RequestPaymentResDto;
 import com.unionclass.paymentservice.domain.payment.entity.Payment;
@@ -49,6 +46,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final NumericUuidGenerator numericUuidGenerator;
     private final RestTemplate restTemplate;
     private final TossHttpRequestBuilder httpRequestBuilder;
+    private final JsonMapper jsonMapper;
 
     @Transactional
     @Override
@@ -63,23 +61,15 @@ public class PaymentServiceImpl implements PaymentService {
 
         Map<String, Object> responseBody = response.getBody();
 
-        Object checkoutObject =responseBody.get("checkout");
+        jsonMapper.convert(responseBody, CreatePaymentReqDto.class);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        Map<String, Object> checkout = objectMapper.convertValue(checkoutObject, new TypeReference<>() {});
-
-        if (checkout == null || !checkout.containsKey("url")) {
-            throw new BaseException(ErrorCode.TOSS_EMPTY_RESPONSE);
-        }
-        String checkoutUrl = checkout.get("url").toString();
-
-        return RequestPaymentResDto.of(dto.getOrderId(), checkoutUrl);
+        return jsonMapper.convert(responseBody, RequestPaymentResDto.class);
     }
 
     @Transactional
     @Override
     public void confirmPayment(ConfirmPaymentReqDto confirmPaymentReqDto) {
+
         try {
 
             HttpHeaders httpHeaders = tossPaymentConfig.getHeaders();

@@ -106,7 +106,7 @@ public enum ErrorCode {
      */
     // payment : 8000 ~ 8499
     INVALID_PAYMENT_STATUS_VALUE(HttpStatus.BAD_REQUEST, false, 8000, "유효하지 않은 결제 상태입니다."),
-    INVALID_PAYMENT_TYPE_VALUE(HttpStatus.BAD_REQUEST, false, 8001, "유효하지 않은 결제 유형입니다."),
+    INVALID_PAYMENT_METHOD_VALUE(HttpStatus.BAD_REQUEST, false, 8001, "유효하지 않은 결제 수단입니다."),
     FAILED_TO_REQUEST_PAYMENT_AMOUNT(HttpStatus.INTERNAL_SERVER_ERROR, false, 8002, "결제 요청에 실패하였습니다."),
     INVALID_REFUND_PROCESS_STATUS_VALUE(HttpStatus.BAD_REQUEST, false, 8003, "유효하지 않은 환불 처리 유형입니다."),
     TOSS_NO_CHECKOUT_FIELD(HttpStatus.BAD_REQUEST, false, 8004, "토스 응답에 checkout 항목이 없습니다."),

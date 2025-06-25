@@ -1,8 +1,8 @@
 package com.unionclass.paymentservice.domain.payment.entity;
 
 import com.unionclass.paymentservice.common.entity.BaseEntity;
-import com.unionclass.paymentservice.domain.payment.enums.PaymentStatus;
-import com.unionclass.paymentservice.domain.payment.enums.PaymentMethod;
+import com.unionclass.paymentservice.domain.payment.enums.Method;
+import com.unionclass.paymentservice.domain.payment.enums.Status;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -38,23 +38,47 @@ public class Payment extends BaseEntity {
     @Column(nullable = false)
     private String orderName;
 
-    @Comment("결제방법")
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private PaymentMethod paymentMethod;
-
-    @Comment("결제금액")
-    @Column(nullable = false)
-    private Long amount;
-
-    @Comment("결제상태")
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private PaymentStatus paymentStatus;
-
-    @Comment("결제키")
+    @Comment("결제 고유 키")
     @Column(nullable = false)
     private String paymentKey;
+
+    @Comment("결제 수단")
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Method method;
+
+    @Comment("결제 상태")
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Status status;
+
+    @Comment("총 결제 금액")
+    @Column(nullable = false)
+    private Long totalAmount;
+
+    @Comment("공급가액")
+    private Long suppliedAmount;
+
+    @Comment("부가세")
+    private Long vat;
+
+    @Comment("비과세 금액")
+    private Long taxFreeAmount;
+
+    @Comment("결제 국가")
+    private String country;
+
+    @Comment("통화")
+    private String currency;
+
+    @Comment("결제 요청 일시")
+    private LocalDateTime requestedAt;
+
+    @Comment("승인일시")
+    private LocalDateTime approvedAt;
+
+    @Comment("결제 요청 URL")
+    private String checkout;
 
     @Comment("결제실패코드")
     private String failCode;
@@ -62,34 +86,45 @@ public class Payment extends BaseEntity {
     @Comment("결제실패사유")
     private String failReason;
 
-    @Comment("승인일시")
-    private LocalDateTime approvedAt;
-
     @Comment("취소일시")
     private LocalDateTime canceledAt;
 
+    @Comment("부분 취소 여부")
+    private boolean isPartialCancelable;
+
     @Builder
     public Payment(
-            Long id, Long uuid, String memberUuid, String orderId, String orderName, PaymentMethod paymentMethod,
-            Long amount, PaymentStatus paymentStatus, String paymentKey, String failCode, String failReason,
-            LocalDateTime approvedAt, LocalDateTime canceledAt) {
+            Long id, Long uuid, String memberUuid, String orderId, String orderName, String paymentKey,
+            Method method, Status status, Long totalAmount, Long suppliedAmount,
+            Long vat, Long taxFreeAmount, String country, String currency, LocalDateTime requestedAt,
+            LocalDateTime approvedAt, String checkout, String failCode, String failReason,
+            LocalDateTime canceledAt, boolean isPartialCancelable
+    ) {
         this.id = id;
         this.uuid = uuid;
         this.memberUuid = memberUuid;
         this.orderId = orderId;
         this.orderName = orderName;
-        this.paymentMethod = paymentMethod;
-        this.amount = amount;
-        this.paymentStatus = paymentStatus;
         this.paymentKey = paymentKey;
+        this.method = method;
+        this.status = status;
+        this.totalAmount = totalAmount;
+        this.suppliedAmount = suppliedAmount;
+        this.vat = vat;
+        this.taxFreeAmount = taxFreeAmount;
+        this.country = country;
+        this.currency = currency;
+        this.requestedAt = requestedAt;
+        this.approvedAt = approvedAt;
+        this.checkout = checkout;
         this.failCode = failCode;
         this.failReason = failReason;
-        this.approvedAt = approvedAt;
         this.canceledAt = canceledAt;
+        this.isPartialCancelable = isPartialCancelable;
     }
 
     public void recordFail(String failCode, String failReason) {
-        this.paymentStatus = PaymentStatus.ABORTED;
+        this.status = Status.ABORTED;
         this.failCode = failCode;
         this.failReason = failReason;
         this.canceledAt = LocalDateTime.now();
@@ -100,7 +135,7 @@ public class Payment extends BaseEntity {
     }
 
     public void cancel() {
-        this.paymentStatus = PaymentStatus.CANCELED;
+        this.status = Status.CANCELED;
         this.canceledAt = LocalDateTime.now();
     }
 }

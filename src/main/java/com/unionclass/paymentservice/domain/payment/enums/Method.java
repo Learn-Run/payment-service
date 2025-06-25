@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum PaymentMethod {
+public enum Method {
 
     CARD("CARD"),
     BANK_TRANSFER("BANK_TRANSFER"),
@@ -17,18 +17,18 @@ public enum PaymentMethod {
     VIRTUAL_ACCOUNT("VIRTUAL_ACCOUNT")
     ;
 
-    private final String paymentType;
+    private final String method;
 
     @JsonValue
-    public String getStatus() { return paymentType; }
+    public String getMethod() { return method; }
 
     @JsonCreator
-    public static PaymentMethod fromString(String value) {
-        for (PaymentMethod paymentMethod : PaymentMethod.values()) {
-            if (paymentMethod.paymentType.equals(value)) {
-                return paymentMethod;
+    public static Method fromString(String value) {
+        for (Method method : Method.values()) {
+            if (method.method.equals(value)) {
+                return method;
             }
         }
-        throw new BaseException(ErrorCode.INVALID_PAYMENT_TYPE_VALUE);
+        throw new BaseException(ErrorCode.INVALID_PAYMENT_METHOD_VALUE);
     }
 }

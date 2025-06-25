@@ -1,6 +1,5 @@
 package com.unionclass.paymentservice.domain.payment.dto.in;
 
-import com.unionclass.paymentservice.domain.payment.enums.PaymentMethod;
 import com.unionclass.paymentservice.domain.payment.vo.in.RequestPaymentReqVo;
 import lombok.Builder;
 import lombok.Getter;
