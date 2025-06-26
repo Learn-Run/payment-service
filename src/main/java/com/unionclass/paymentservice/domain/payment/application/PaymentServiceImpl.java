@@ -1,22 +1,22 @@
 package com.unionclass.paymentservice.domain.payment.application;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.unionclass.paymentservice.common.config.TossPaymentConfig;
 import com.unionclass.paymentservice.common.exception.BaseException;
 import com.unionclass.paymentservice.common.exception.ErrorCode;
 import com.unionclass.paymentservice.common.util.JsonMapper;
-import com.unionclass.paymentservice.domain.payment.dto.in.*;
-import com.unionclass.paymentservice.domain.payment.util.TossHttpRequestBuilder;
 import com.unionclass.paymentservice.common.util.NumericUuidGenerator;
+import com.unionclass.paymentservice.domain.payment.dto.in.*;
 import com.unionclass.paymentservice.domain.payment.dto.out.GetPaymentDetailsResDto;
 import com.unionclass.paymentservice.domain.payment.dto.out.RequestPaymentResDto;
 import com.unionclass.paymentservice.domain.payment.entity.Payment;
 import com.unionclass.paymentservice.domain.payment.infrastructure.PaymentRepository;
 import com.unionclass.paymentservice.domain.payment.infrastructure.RefundHistoryRepository;
+import com.unionclass.paymentservice.domain.payment.util.TossHttpRequestBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
@@ -29,12 +29,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -44,10 +41,12 @@ public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final RefundHistoryRepository refundHistoryRepository;
+    private final TossHttpRequestBuilder httpRequestBuilder;
+    private final PaymentFailureService paymentFailureService;
+
     private final TossPaymentConfig tossPaymentConfig;
     private final NumericUuidGenerator numericUuidGenerator;
     private final RestTemplate restTemplate;
-    private final TossHttpRequestBuilder httpRequestBuilder;
     private final JsonMapper jsonMapper;
     private final NumericUuidGenerator uuidGenerator;
 
@@ -64,9 +63,7 @@ public class PaymentServiceImpl implements PaymentService {
                                                     tossPaymentConfig.getBaseUrl(),
                                                     HttpMethod.POST,
                                                     httpRequestBuilder.buildEntity(httpRequestBuilder.buildRequestPaymentPayload(dto)),
-                                                    new ParameterizedTypeReference<Map<String, Object>>() {
-                                                    }
-
+                                                    new ParameterizedTypeReference<Map<String, Object>>() {}
                                             ).getBody()
                                     ).get("checkout"), new TypeReference<Map<String, Object>>() {
                                     })
@@ -84,51 +81,74 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Transactional
     @Override
-    public void confirmPayment(ConfirmPaymentReqDto confirmPaymentReqDto) {
+    public void confirmPayment(ConfirmPaymentReqDto dto) {
 
         try {
 
-            HttpHeaders httpHeaders = tossPaymentConfig.getHeaders();
+            HttpEntity<Map<String, Object>> httpEntity = httpRequestBuilder.buildEntity(httpRequestBuilder.buildConfirmPaymentPayload(dto));
 
-            Map<String, Object> body = new HashMap<>();
-            body.put("paymentKey", confirmPaymentReqDto.getPaymentKey());
-            body.put("orderId", confirmPaymentReqDto.getOrderId());
-            body.put("amount", confirmPaymentReqDto.getAmount());
+            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                    tossPaymentConfig.getBaseUrl() + "/confirm", HttpMethod.POST, httpEntity, new ParameterizedTypeReference<>() {});
 
-            HttpEntity<Map<String, Object>> httpRequest = new HttpEntity<>(body, httpHeaders);
+            Map<String, Object> responseBody = response.getBody();
 
-            Payment payment = confirmPaymentReqDto.toEntity(numericUuidGenerator.generate());
-            paymentRepository.save(payment);
-
-            ResponseEntity<Map> response = restTemplate.postForEntity(
-                    tossPaymentConfig.getBaseUrl() + "/confirm", httpRequest, Map.class);
-
-            Map responseBody = response.getBody();
-
-            if (responseBody == null) {
-                throw new BaseException(ErrorCode.TOSS_EMPTY_RESPONSE);
+            if (responseBody != null) {
+                log.info("response keys: {}", responseBody.keySet());
+                responseBody.forEach((key, value) ->
+                        log.info("Field: {} = {}", key, value)
+                );
             }
 
-            Map<String, Object> failure = (Map<String, Object>) responseBody.get("failure");
+            if (responseBody == null) { throw new BaseException(ErrorCode.TOSS_EMPTY_RESPONSE); }
 
-            LocalDateTime approvedAt = Optional.ofNullable(responseBody.get("approvedAt").toString())
-                    .map(OffsetDateTime::parse)
-                    .map(OffsetDateTime::toLocalDateTime)
-                    .orElse(null);
+            CreatePaymentReqDto createPaymentReqDto = jsonMapper.convert(responseBody, CreatePaymentReqDto.class);
+
+            createPayment(createPaymentReqDto, dto.getMemberUuid());
+
+            Map<String, Object> failure = jsonMapper.convert(responseBody.get("failure"), new TypeReference<>() {});
 
             if (failure != null) {
 
-                payment.recordFail(failure.get("code").toString(), failure.get("message").toString());
+                paymentFailureService.recordPaymentFailure(
+                        RecordPaymentFailureReqDto.of(
+                                dto, jsonMapper.convert(failure, GetTossPaymentFailureReqDto.class)
+                        )
+                );
+
                 throw new BaseException(ErrorCode.TOSS_PAYMENT_REJECTED);
             }
 
-            payment.approvePayment(approvedAt);
-            paymentRepository.save(payment);
-
         } catch (HttpClientErrorException e) {
-            log.warn("결제 승인 시도 중 오류 발생 - paymentKey: {}, message: {}",
-                    confirmPaymentReqDto.getPaymentKey(), e.getMessage(), e);
+
+            log.warn("결제 승인 시도 중 오류 발생 - paymentKey: {}, message: {}", dto.getPaymentKey(), e.getMessage(), e);
+
             throw new BaseException(ErrorCode.TOSS_API_CALL_FAILED);
+
+        } catch (Exception e) {
+
+            log.warn("결제 승인 중 알 수 없는 오류 발생 - paymentKey: {}, message: {}", dto.getPaymentKey(), e.getMessage(), e);
+
+            throw new BaseException(ErrorCode.FAILED_TO_CONFIRM_PAYMENT);
+        }
+    }
+
+    @Transactional
+    @Override
+    public void createPayment(CreatePaymentReqDto dto, String memberUuid) {
+
+        try {
+
+            paymentRepository.save(dto.toEntity(uuidGenerator.generate(), memberUuid));
+
+            log.info("결제 생성 성공 - memberUuid: {}, paymentKey: {}, orderId: {}",
+                    memberUuid, dto.getPaymentKey(), dto.getOrderId());
+
+        } catch (Exception e) {
+
+            log.warn("결제 생성 실패 - memberUuid: {}, paymentKey: {}, orderId: {}",
+                    memberUuid, dto.getPaymentKey(), dto.getOrderId());
+
+            throw new BaseException(ErrorCode.FAILED_TO_CREATE_PAYMENT);
         }
     }
 
@@ -137,6 +157,7 @@ public class PaymentServiceImpl implements PaymentService {
     public void cancelPayment(CancelPaymentReqDto cancelPaymentReqDto) {
 
         try {
+
             Payment payment = paymentRepository.findByPaymentKey(cancelPaymentReqDto.getPaymentKey())
                     .orElseThrow(() -> new BaseException(ErrorCode.FAILED_TO_FIND_PAYMENT_BY_PAYMENT_KEY));
 

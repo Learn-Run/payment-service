@@ -1,28 +1,30 @@
 package com.unionclass.paymentservice.domain.payment.dto.in;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.unionclass.paymentservice.domain.payment.entity.Payment;
 import com.unionclass.paymentservice.domain.payment.enums.Method;
 import com.unionclass.paymentservice.domain.payment.enums.Status;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Getter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CreatePaymentReqDto {
 
     private String orderId;
     private String orderName;
     private String paymentKey;
-    private Method method;
-    private Status status;
+    private String method;
+    private String status;
     private Long totalAmount;
     private Long suppliedAmount;
     private Long vat;
     private Long taxFreeAmount;
     private String country;
     private String currency;
-    private LocalDateTime requestedAt;
-    private String checkout;
+    private ZonedDateTime requestedAt;
+    private ZonedDateTime approvedAt;
     private boolean isPartialCancelable;
 
     public Payment toEntity(Long uuid, String memberUuid) {
@@ -32,8 +34,8 @@ public class CreatePaymentReqDto {
                 .orderId(orderId)
                 .orderName(orderName)
                 .paymentKey(paymentKey)
-                .method(method)
-                .status(status)
+                .method(Method.fromString(method))
+                .status(Status.fromString(status))
                 .totalAmount(totalAmount)
                 .suppliedAmount(suppliedAmount)
                 .vat(vat)
@@ -41,7 +43,7 @@ public class CreatePaymentReqDto {
                 .country(country)
                 .currency(currency)
                 .requestedAt(requestedAt)
-                .checkout(checkout)
+                .approvedAt(approvedAt)
                 .isPartialCancelable(isPartialCancelable)
                 .build();
     }

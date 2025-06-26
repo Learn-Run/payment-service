@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Entity
 @Getter
@@ -72,19 +73,10 @@ public class Payment extends BaseEntity {
     private String currency;
 
     @Comment("결제 요청 일시")
-    private LocalDateTime requestedAt;
+    private ZonedDateTime requestedAt;
 
-    @Comment("승인일시")
-    private LocalDateTime approvedAt;
-
-    @Comment("결제 요청 URL")
-    private String checkout;
-
-    @Comment("결제실패코드")
-    private String failCode;
-
-    @Comment("결제실패사유")
-    private String failReason;
+    @Comment("결제 승인 일시")
+    private ZonedDateTime approvedAt;
 
     @Comment("취소일시")
     private LocalDateTime canceledAt;
@@ -96,9 +88,8 @@ public class Payment extends BaseEntity {
     public Payment(
             Long id, Long uuid, String memberUuid, String orderId, String orderName, String paymentKey,
             Method method, Status status, Long totalAmount, Long suppliedAmount,
-            Long vat, Long taxFreeAmount, String country, String currency, LocalDateTime requestedAt,
-            LocalDateTime approvedAt, String checkout, String failCode, String failReason,
-            LocalDateTime canceledAt, boolean isPartialCancelable
+            Long vat, Long taxFreeAmount, String country, String currency, ZonedDateTime requestedAt,
+            ZonedDateTime approvedAt, LocalDateTime canceledAt, boolean isPartialCancelable
     ) {
         this.id = id;
         this.uuid = uuid;
@@ -116,22 +107,8 @@ public class Payment extends BaseEntity {
         this.currency = currency;
         this.requestedAt = requestedAt;
         this.approvedAt = approvedAt;
-        this.checkout = checkout;
-        this.failCode = failCode;
-        this.failReason = failReason;
         this.canceledAt = canceledAt;
         this.isPartialCancelable = isPartialCancelable;
-    }
-
-    public void recordFail(String failCode, String failReason) {
-        this.status = Status.ABORTED;
-        this.failCode = failCode;
-        this.failReason = failReason;
-        this.canceledAt = LocalDateTime.now();
-    }
-
-    public void approvePayment(LocalDateTime approvedAt) {
-        this.approvedAt = approvedAt;
     }
 
     public void cancel() {

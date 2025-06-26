@@ -102,8 +102,6 @@ public class PaymentController {
                     [요청 바디]
                     - paymentKey : (String) Toss 에서 결제 완료 시 제공하는 결제 키
                     - orderId : (String) 주문 고유 번호
-                    - orderName : (String) 주문명
-                    - paymentMethod : (String) 결제방법 (카드, 계좌이체, 휴대폰결제, 가상계좌)
                     - amount : (Long) 결제 금액
                     
                     [처리 방식]

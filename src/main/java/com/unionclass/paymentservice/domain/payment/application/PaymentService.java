@@ -1,16 +1,14 @@
 package com.unionclass.paymentservice.domain.payment.application;
 
-import com.unionclass.paymentservice.domain.payment.dto.in.CancelPaymentReqDto;
-import com.unionclass.paymentservice.domain.payment.dto.in.ConfirmPaymentReqDto;
-import com.unionclass.paymentservice.domain.payment.dto.in.GetPaymentDetailsReqDto;
-import com.unionclass.paymentservice.domain.payment.dto.in.RequestPaymentReqDto;
+import com.unionclass.paymentservice.domain.payment.dto.in.*;
 import com.unionclass.paymentservice.domain.payment.dto.out.GetPaymentDetailsResDto;
 import com.unionclass.paymentservice.domain.payment.dto.out.RequestPaymentResDto;
 
 public interface PaymentService {
 
-    RequestPaymentResDto requestPayment(RequestPaymentReqDto requestPaymentReqDto);
-    void confirmPayment(ConfirmPaymentReqDto confirmPaymentReqDto);
-    void cancelPayment(CancelPaymentReqDto cancelPaymentReqDto);
+    RequestPaymentResDto requestPayment(RequestPaymentReqDto dto);
+    void confirmPayment(ConfirmPaymentReqDto dto);
+    void createPayment(CreatePaymentReqDto dto, String memberUuid);
+    void cancelPayment(CancelPaymentReqDto dto);
     GetPaymentDetailsResDto getPaymentDetailsByPaymentKey(GetPaymentDetailsReqDto dto);
 }

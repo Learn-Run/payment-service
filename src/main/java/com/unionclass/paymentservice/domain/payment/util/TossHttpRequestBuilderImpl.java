@@ -1,6 +1,7 @@
 package com.unionclass.paymentservice.domain.payment.util;
 
 import com.unionclass.paymentservice.common.config.TossPaymentConfig;
+import com.unionclass.paymentservice.domain.payment.dto.in.ConfirmPaymentReqDto;
 import com.unionclass.paymentservice.domain.payment.dto.in.RequestPaymentReqDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -36,6 +37,18 @@ public class TossHttpRequestBuilderImpl implements TossHttpRequestBuilder {
         body.put("successUrl", config.getSuccessUrl());
         body.put("failUrl", config.getFailUrl());
         body.put("validHours", 1);
+
+        return body;
+    }
+
+    @Override
+    public Map<String, Object> buildConfirmPaymentPayload(ConfirmPaymentReqDto dto) {
+
+        Map<String, Object> body = new HashMap<>();
+
+        body.put("paymentKey", dto.getPaymentKey());
+        body.put("orderId", dto.getOrderId());
+        body.put("amount", dto.getAmount());
 
         return body;
     }
