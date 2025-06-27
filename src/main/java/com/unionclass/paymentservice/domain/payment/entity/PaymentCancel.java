@@ -1,6 +1,7 @@
 package com.unionclass.paymentservice.domain.payment.entity;
 
 import com.unionclass.paymentservice.common.entity.BaseEntity;
+import com.unionclass.paymentservice.domain.payment.enums.CancelStatus;
 import com.unionclass.paymentservice.domain.payment.enums.RefundProcessStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -10,11 +11,13 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RefundHistory extends BaseEntity {
+@Table(name = "payment_cancel")
+public class PaymentCancel extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,52 +27,47 @@ public class RefundHistory extends BaseEntity {
     @Column(nullable = false, unique = true)
     private Long uuid;
 
-    @Comment("결제 UUID")
-    @Column(nullable = false, unique = true)
-    private Long paymentUuid;
-
     @Comment("멤버 UUID")
     @Column(nullable = false)
     private String memberUuid;
+
+    @Comment("결제 고유 키")
+    @Column(nullable = false)
+    private String paymentKey;
 
     @Comment("주문 ID")
     @Column(nullable = false)
     private String orderId;
 
-    @Comment("결제키")
-    @Column(nullable = false)
-    private String paymentKey;
-
-    @Comment("환불 금액")
+    @Comment("취소 금액")
     @Column(nullable = false)
     private Long amount;
 
-    @Comment("환불사유")
+    @Comment("취소 사유")
     @Column(nullable = false)
     private String cancelReason;
 
-    @Comment("환불처리상태")
+    @Comment("취소 상태")
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private RefundProcessStatus refundProcessStatus;
+    private CancelStatus cancelStatus;
 
-    @Comment("승인일시")
-    private LocalDateTime approvedAt;
+    @Comment("취소 일시")
+    private ZonedDateTime canceledAt;
 
     @Builder
-    public RefundHistory(
-            Long id, Long uuid, Long paymentUuid, String memberUuid, String orderId, String paymentKey, Long amount,
-            String cancelReason, RefundProcessStatus refundProcessStatus, LocalDateTime approvedAt
+    public PaymentCancel(
+            Long id, Long uuid, String memberUuid, String paymentKey, String orderId,
+            Long amount, String cancelReason, CancelStatus cancelStatus, ZonedDateTime canceledAt
     ) {
         this.id = id;
         this.uuid = uuid;
-        this.paymentUuid = paymentUuid;
         this.memberUuid = memberUuid;
-        this.orderId = orderId;
         this.paymentKey = paymentKey;
+        this.orderId = orderId;
         this.amount = amount;
         this.cancelReason = cancelReason;
-        this.refundProcessStatus = refundProcessStatus;
-        this.approvedAt = approvedAt;
+        this.cancelStatus = cancelStatus;
+        this.canceledAt = canceledAt;
     }
 }

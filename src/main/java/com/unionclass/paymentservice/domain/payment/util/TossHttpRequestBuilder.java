@@ -1,5 +1,6 @@
 package com.unionclass.paymentservice.domain.payment.util;
 
+import com.unionclass.paymentservice.domain.payment.dto.in.CancelPaymentReqDto;
 import com.unionclass.paymentservice.domain.payment.dto.in.ConfirmPaymentReqDto;
 import com.unionclass.paymentservice.domain.payment.dto.in.RequestPaymentReqDto;
 import org.springframework.http.HttpHeaders;
@@ -15,4 +16,6 @@ public interface TossHttpRequestBuilder {
     Map<String, Object> buildRequestPaymentPayload(RequestPaymentReqDto dto);
 
     Map<String, Object> buildConfirmPaymentPayload(ConfirmPaymentReqDto dto);
+
+    Map<String, Object> buildCancelPaymentPayload(CancelPaymentReqDto dto);
 }

@@ -8,14 +8,20 @@ import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.unionclass.paymentservice.common.config.TossPaymentConfig;
 import com.unionclass.paymentservice.common.exception.BaseException;
 import com.unionclass.paymentservice.common.exception.ErrorCode;
+import com.unionclass.paymentservice.common.response.ResponseMessage;
 import com.unionclass.paymentservice.common.util.JsonMapper;
 import com.unionclass.paymentservice.common.util.NumericUuidGenerator;
+import com.unionclass.paymentservice.domain.order.application.OrderService;
+import com.unionclass.paymentservice.domain.order.dto.in.CreateOrderReqDto;
+import com.unionclass.paymentservice.domain.order.dto.in.UpdateOrderStatusReqDto;
+import com.unionclass.paymentservice.domain.payment.dto.GetCancelsDto;
+import com.unionclass.paymentservice.domain.payment.dto.GetFailureDto;
 import com.unionclass.paymentservice.domain.payment.dto.in.*;
+import com.unionclass.paymentservice.domain.payment.dto.out.ConfirmPaymentResDto;
 import com.unionclass.paymentservice.domain.payment.dto.out.GetPaymentDetailsResDto;
 import com.unionclass.paymentservice.domain.payment.dto.out.RequestPaymentResDto;
-import com.unionclass.paymentservice.domain.payment.entity.Payment;
 import com.unionclass.paymentservice.domain.payment.infrastructure.PaymentRepository;
-import com.unionclass.paymentservice.domain.payment.infrastructure.RefundHistoryRepository;
+import com.unionclass.paymentservice.domain.payment.infrastructure.PaymentCancelRepository;
 import com.unionclass.paymentservice.domain.payment.util.TossHttpRequestBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,14 +46,16 @@ import java.util.Objects;
 public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
-    private final RefundHistoryRepository refundHistoryRepository;
     private final TossHttpRequestBuilder httpRequestBuilder;
     private final PaymentFailureService paymentFailureService;
+    private final PaymentCancelService paymentCancelService;
+    private final PaymentCancelFacade paymentCancelFacade;
+    private final OrderService orderService;
+    private final JsonMapper jsonMapper;
 
     private final TossPaymentConfig tossPaymentConfig;
     private final NumericUuidGenerator numericUuidGenerator;
     private final RestTemplate restTemplate;
-    private final JsonMapper jsonMapper;
     private final NumericUuidGenerator uuidGenerator;
 
     @Transactional
@@ -63,7 +71,8 @@ public class PaymentServiceImpl implements PaymentService {
                                                     tossPaymentConfig.getBaseUrl(),
                                                     HttpMethod.POST,
                                                     httpRequestBuilder.buildEntity(httpRequestBuilder.buildRequestPaymentPayload(dto)),
-                                                    new ParameterizedTypeReference<Map<String, Object>>() {}
+                                                    new ParameterizedTypeReference<Map<String, Object>>() {
+                                                    }
                                             ).getBody()
                                     ).get("checkout"), new TypeReference<Map<String, Object>>() {
                                     })
@@ -81,48 +90,37 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Transactional
     @Override
-    public void confirmPayment(ConfirmPaymentReqDto dto) {
+    public ConfirmPaymentResDto confirmPayment(ConfirmPaymentReqDto dto) {
 
         try {
 
-            HttpEntity<Map<String, Object>> httpEntity = httpRequestBuilder.buildEntity(httpRequestBuilder.buildConfirmPaymentPayload(dto));
+            createPayment(
+                    jsonMapper.convert(
+                            restTemplate.exchange(
+                                    tossPaymentConfig.getBaseUrl() + "/confirm",
+                                    HttpMethod.POST,
+                                    httpRequestBuilder.buildEntity(httpRequestBuilder.buildConfirmPaymentPayload(dto)),
+                                    new ParameterizedTypeReference<Map<String, Object>>() {
+                                    }
+                            ).getBody(), CreatePaymentReqDto.class
+                    ), dto.getMemberUuid()
+            );
 
-            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
-                    tossPaymentConfig.getBaseUrl() + "/confirm", HttpMethod.POST, httpEntity, new ParameterizedTypeReference<>() {});
+            log.info("결제 승인 성공 - paymentKey: {}", dto.getPaymentKey());
 
-            Map<String, Object> responseBody = response.getBody();
-
-            if (responseBody != null) {
-                log.info("response keys: {}", responseBody.keySet());
-                responseBody.forEach((key, value) ->
-                        log.info("Field: {} = {}", key, value)
-                );
-            }
-
-            if (responseBody == null) { throw new BaseException(ErrorCode.TOSS_EMPTY_RESPONSE); }
-
-            CreatePaymentReqDto createPaymentReqDto = jsonMapper.convert(responseBody, CreatePaymentReqDto.class);
-
-            createPayment(createPaymentReqDto, dto.getMemberUuid());
-
-            Map<String, Object> failure = jsonMapper.convert(responseBody.get("failure"), new TypeReference<>() {});
-
-            if (failure != null) {
-
-                paymentFailureService.recordPaymentFailure(
-                        RecordPaymentFailureReqDto.of(
-                                dto, jsonMapper.convert(failure, GetTossPaymentFailureReqDto.class)
-                        )
-                );
-
-                throw new BaseException(ErrorCode.TOSS_PAYMENT_REJECTED);
-            }
+            return ConfirmPaymentResDto.of(200, ResponseMessage.SUCCESS_CONFIRM_PAYMENT.getMessage());
 
         } catch (HttpClientErrorException e) {
 
-            log.warn("결제 승인 시도 중 오류 발생 - paymentKey: {}, message: {}", dto.getPaymentKey(), e.getMessage(), e);
+            GetFailureDto failure = jsonMapper.readValue(
+                    e.getResponseBodyAsString(), GetFailureDto.class
+            );
 
-            throw new BaseException(ErrorCode.TOSS_API_CALL_FAILED);
+            paymentFailureService.recordPaymentFailure(RecordPaymentFailureReqDto.of(dto, failure));
+
+            log.info("결제 승인 실패 - paymentKey: {}, message: {}", dto.getPaymentKey(), e.getMessage(), e);
+
+            return ConfirmPaymentResDto.of(failure);
 
         } catch (Exception e) {
 
@@ -154,39 +152,34 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Transactional
     @Override
-    public void cancelPayment(CancelPaymentReqDto cancelPaymentReqDto) {
+    public void cancelPayment(CancelPaymentReqDto dto) {
 
         try {
 
-            Payment payment = paymentRepository.findByPaymentKey(cancelPaymentReqDto.getPaymentKey())
-                    .orElseThrow(() -> new BaseException(ErrorCode.FAILED_TO_FIND_PAYMENT_BY_PAYMENT_KEY));
+            paymentCancelFacade.cancelAndUpdate(
+                    dto,
+                    jsonMapper.convert(
+                            Objects.requireNonNull(
+                                    restTemplate.exchange(
+                                            tossPaymentConfig.getBaseUrl() + "/" + dto.getPaymentKey() + "/cancel",
+                                            HttpMethod.POST,
+                                            httpRequestBuilder.buildEntity(httpRequestBuilder.buildCancelPaymentPayload(dto)),
+                                            new ParameterizedTypeReference<Map<String, Object>>() {
+                                            }
+                                    ).getBody()
+                            ).get("cancels"),
+                            GetCancelsDto.class
+                    )
+            );
 
-            payment.cancel();
-
-            refundHistoryRepository.save(cancelPaymentReqDto.toEntity(numericUuidGenerator.generate(), payment));
+            log.info("결제 취소 성공 - paymentKey: {}", dto.getPaymentKey());
 
         } catch (Exception e) {
-            throw new BaseException(ErrorCode.FAILED_TO_SAVE_PAYMENT_AND_REFUND_HISTORY);
-        }
 
-        HttpHeaders httpHeaders = tossPaymentConfig.getHeaders();
+            log.warn("결제 취소 중 알 수 없는 오류 발생 - paymentKey: {}, message: {}",
+                    dto.getPaymentKey(), e.getMessage(), e);
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("cancelReason", cancelPaymentReqDto.getCancelReason());
-
-        HttpEntity<Map<String, Object>> httpRequest = new HttpEntity<>(body, httpHeaders);
-
-        ResponseEntity<Map> response = restTemplate.postForEntity(
-                tossPaymentConfig.getBaseUrl() + "/{paymentKey}/cancel", httpRequest, Map.class, cancelPaymentReqDto.getPaymentKey());
-
-        if (response.getStatusCode().is2xxSuccessful()) {
-
-            log.info("toss 와의 통신 성공 및 환불 처리 완료 - paymentKey: {}", cancelPaymentReqDto.getPaymentKey());
-
-        } else {
-
-            throw new BaseException(ErrorCode.FAILED_TO_CALL_TOSS_API_FOR_REFUND);
-
+            throw new BaseException(ErrorCode.FAILED_TO_CANCEL_PAYMENT);
         }
     }
 

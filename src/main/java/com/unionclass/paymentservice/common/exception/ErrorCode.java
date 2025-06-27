@@ -115,18 +115,21 @@ public enum ErrorCode {
     TOSS_PAYMENT_REJECTED(HttpStatus.BAD_REQUEST, false, 8007, "결제가 거절되었습니다. 사유를 확인해주세요."),
     TOSS_API_CALL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, false, 8008, "결제 승인 시도 중 오류가 발생하였습니다."),
     FAILED_TO_FIND_PAYMENT_BY_PAYMENT_KEY(HttpStatus.BAD_REQUEST, false, 8009, "해당 PaymentKey 로 결제 정보를 찾을 수 없습니다."),
-    FAILED_TO_CANCEL_PAYMENT(HttpStatus.INTERNAL_SERVER_ERROR, false, 8010, "결제 환불 처리에 실패하였습니다."),
     FAILED_TO_CALL_TOSS_API_FOR_REFUND(HttpStatus.INTERNAL_SERVER_ERROR, false, 8011, "환불 처리를 위한 토스와의 통신에 실패하였습니다."),
-    FAILED_TO_SAVE_PAYMENT_AND_REFUND_HISTORY(HttpStatus.INTERNAL_SERVER_ERROR, false, 8012, "환불 처리에 대한 결제 및 환불 기록 저장에 실패하였습니다."),
+    FAILED_TO_CANCEL_PAYMENT(HttpStatus.INTERNAL_SERVER_ERROR, false, 8012, "결제 취소에 실패하였습니다."),
     FAILED_TO_FIND_PAYMENT_DETAILS_BY_PAYMENT_KEY(HttpStatus.INTERNAL_SERVER_ERROR, false, 8013, "paymentKey 를 통한 결제 상세정보 단건 조회에 실패하였습니다."),
     FAILED_TO_REQUEST_PAYMENT(HttpStatus.INTERNAL_SERVER_ERROR, false, 8014, "결제 요청에 실패하였습니다."),
     FAILED_TO_CREATE_PAYMENT(HttpStatus.INTERNAL_SERVER_ERROR, false, 8015, "결제 생성에 실패하였습니다."),
     FAILED_TO_RECORD_PAYMENT_FAILURE(HttpStatus.INTERNAL_SERVER_ERROR, false, 8016, "결제 실패 기록 저장에 실패하였습니다."),
     FAILED_TO_CONFIRM_PAYMENT(HttpStatus.INTERNAL_SERVER_ERROR, false, 8017, "결제 승인에 실패하였습니다."),
+    INVALID_PAYMENT_CANCEL_STATUS_VALUE(HttpStatus.INTERNAL_SERVER_ERROR, false, 8018, "유효하지 않은 결제 취소 상태입니다."),
+    FAILED_TO_CREATE_PAYMENT_CANCEL(HttpStatus.INTERNAL_SERVER_ERROR, false, 8019, "결제 취소 정보 저장에 실패하였습니다."),
 
     // order : 8500 ~
     INVALID_ORDER_STATUS_VALUE(HttpStatus.BAD_REQUEST, false, 8500, "유효하지 않은 주문 상태입니다."),
     FAILED_TO_CREATE_ORDER(HttpStatus.INTERNAL_SERVER_ERROR, false, 8501, "주문 생성에 실패하였습니다."),
+    FAILED_TO_FIND_ORDER(HttpStatus.INTERNAL_SERVER_ERROR, false, 8502, "주문 조회에 실패하였습니다."),
+    FAILED_TO_UPDATE_ORDER_STATUS(HttpStatus.INTERNAL_SERVER_ERROR, false, 8503, "주문 상태 변경에 성공하였습니다."),
     ;
 
     private final HttpStatus httpStatus;

@@ -2,15 +2,13 @@ package com.unionclass.paymentservice.domain.payment.entity;
 
 import com.unionclass.paymentservice.common.entity.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Comment;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "payment_failure")
 public class PaymentFailure extends BaseEntity {
 
     @Id
@@ -21,7 +19,7 @@ public class PaymentFailure extends BaseEntity {
     @Column(nullable = false, unique = true)
     private Long uuid;
 
-    @Comment("결제 고유 키")
+    @Comment("회원 UUID")
     @Column(nullable = false, unique = true, length = 36)
     private String memberUuid;
 

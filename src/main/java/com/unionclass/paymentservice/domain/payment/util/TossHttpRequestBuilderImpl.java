@@ -1,6 +1,7 @@
 package com.unionclass.paymentservice.domain.payment.util;
 
 import com.unionclass.paymentservice.common.config.TossPaymentConfig;
+import com.unionclass.paymentservice.domain.payment.dto.in.CancelPaymentReqDto;
 import com.unionclass.paymentservice.domain.payment.dto.in.ConfirmPaymentReqDto;
 import com.unionclass.paymentservice.domain.payment.dto.in.RequestPaymentReqDto;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +50,16 @@ public class TossHttpRequestBuilderImpl implements TossHttpRequestBuilder {
         body.put("paymentKey", dto.getPaymentKey());
         body.put("orderId", dto.getOrderId());
         body.put("amount", dto.getAmount());
+
+        return body;
+    }
+
+    @Override
+    public Map<String, Object> buildCancelPaymentPayload(CancelPaymentReqDto dto) {
+
+        Map<String, Object> body = new HashMap<>();
+
+        body.put("cancelReason", dto.getCancelReason());
 
         return body;
     }
