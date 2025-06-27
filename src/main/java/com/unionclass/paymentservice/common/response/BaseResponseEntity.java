@@ -9,4 +9,6 @@ public record BaseResponseEntity<T>(HttpStatus httpStatus, boolean isSuccess, in
     public BaseResponseEntity(String message) {
         this(HttpStatus.OK, true, 200, message, null);
     }
+
+    public BaseResponseEntity(int code, String message) { this(HttpStatus.OK, true, code, message, null); }
 }

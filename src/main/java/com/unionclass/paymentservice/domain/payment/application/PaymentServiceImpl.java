@@ -12,8 +12,6 @@ import com.unionclass.paymentservice.common.response.ResponseMessage;
 import com.unionclass.paymentservice.common.util.JsonMapper;
 import com.unionclass.paymentservice.common.util.NumericUuidGenerator;
 import com.unionclass.paymentservice.domain.order.application.OrderService;
-import com.unionclass.paymentservice.domain.order.dto.in.CreateOrderReqDto;
-import com.unionclass.paymentservice.domain.order.dto.in.UpdateOrderStatusReqDto;
 import com.unionclass.paymentservice.domain.payment.dto.GetCancelsDto;
 import com.unionclass.paymentservice.domain.payment.dto.GetFailureDto;
 import com.unionclass.paymentservice.domain.payment.dto.in.*;
@@ -21,13 +19,11 @@ import com.unionclass.paymentservice.domain.payment.dto.out.ConfirmPaymentResDto
 import com.unionclass.paymentservice.domain.payment.dto.out.GetPaymentDetailsResDto;
 import com.unionclass.paymentservice.domain.payment.dto.out.RequestPaymentResDto;
 import com.unionclass.paymentservice.domain.payment.infrastructure.PaymentRepository;
-import com.unionclass.paymentservice.domain.payment.infrastructure.PaymentCancelRepository;
 import com.unionclass.paymentservice.domain.payment.util.TossHttpRequestBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -35,7 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
