@@ -1,6 +1,6 @@
 package com.unionclass.paymentservice.domain.payment.dto.out;
 
-import com.unionclass.paymentservice.domain.payment.dto.GetFailureDto;
+import com.unionclass.paymentservice.domain.payment.dto.FailureDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,7 +26,7 @@ public class ConfirmPaymentResDto {
                 .build();
     }
 
-    public static ConfirmPaymentResDto of(GetFailureDto dto) {
+    public static ConfirmPaymentResDto of(FailureDto dto) {
 
         return ConfirmPaymentResDto.builder()
                 .code(Integer.parseInt(dto.getCode()))

@@ -1,6 +1,6 @@
 package com.unionclass.paymentservice.domain.payment.dto.in;
 
-import com.unionclass.paymentservice.domain.payment.dto.GetCancelsDto;
+import com.unionclass.paymentservice.domain.payment.dto.CancelsDto;
 import com.unionclass.paymentservice.domain.payment.entity.PaymentCancel;
 import com.unionclass.paymentservice.domain.payment.enums.CancelStatus;
 import lombok.Builder;
@@ -36,16 +36,16 @@ public class CreatePaymentCancelReqDto {
     }
 
     public static CreatePaymentCancelReqDto of(
-            CancelPaymentReqDto cancelPaymentReqDto, GetCancelsDto getCancelsDto
+            CancelPaymentReqDto cancelPaymentReqDto, CancelsDto cancelsDto
     ) {
         return CreatePaymentCancelReqDto.builder()
                 .paymentKey(cancelPaymentReqDto.getPaymentKey())
                 .memberUuid(cancelPaymentReqDto.getMemberUuid())
-                .orderId(getCancelsDto.getOrderId())
-                .amount(getCancelsDto.getCancelAmount())
-                .cancelReason(getCancelsDto.getCancelReason())
-                .cancelStatus(CancelStatus.fromString(getCancelsDto.getCancelStatus()))
-                .canceledAt(getCancelsDto.getCanceledAt())
+                .orderId(cancelsDto.getOrderId())
+                .amount(cancelsDto.getCancelAmount())
+                .cancelReason(cancelsDto.getCancelReason())
+                .cancelStatus(CancelStatus.fromString(cancelsDto.getCancelStatus()))
+                .canceledAt(cancelsDto.getCanceledAt())
                 .build();
     }
 

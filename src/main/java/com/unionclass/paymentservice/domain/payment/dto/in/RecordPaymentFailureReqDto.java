@@ -1,6 +1,6 @@
 package com.unionclass.paymentservice.domain.payment.dto.in;
 
-import com.unionclass.paymentservice.domain.payment.dto.GetFailureDto;
+import com.unionclass.paymentservice.domain.payment.dto.FailureDto;
 import com.unionclass.paymentservice.domain.payment.entity.PaymentFailure;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,14 +28,14 @@ public class RecordPaymentFailureReqDto {
     }
 
     public static RecordPaymentFailureReqDto of(
-            ConfirmPaymentReqDto confirmPaymentReqDto, GetFailureDto getFailureDto
+            ConfirmPaymentReqDto confirmPaymentReqDto, FailureDto failureDto
     ) {
         return RecordPaymentFailureReqDto.builder()
                 .memberUuid(confirmPaymentReqDto.getMemberUuid())
                 .paymentKey(confirmPaymentReqDto.getPaymentKey())
                 .orderId(confirmPaymentReqDto.getOrderId())
-                .failCode(getFailureDto.getCode())
-                .failReason(getFailureDto.getMessage())
+                .failCode(failureDto.getCode())
+                .failReason(failureDto.getMessage())
                 .build();
     }
 

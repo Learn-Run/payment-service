@@ -10,7 +10,7 @@ import java.time.ZonedDateTime;
 @Getter
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class GetCancelsDto {
+public class CancelsDto {
 
     private String orderId;
     private Long cancelAmount;
@@ -19,7 +19,7 @@ public class GetCancelsDto {
     private ZonedDateTime canceledAt;
 
     @Builder
-    public GetCancelsDto(
+    public CancelsDto(
             String orderId, Long cancelAmount, String cancelStatus, String cancelReason, ZonedDateTime canceledAt
     ) {
         this.orderId = orderId;

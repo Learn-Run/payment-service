@@ -32,7 +32,7 @@ public class PaymentController {
      * 1. 결제 요청
      * 2. 결제 승인
      * 3. 결제 취소 (환불)
-     * 4. paymentKey 로 결제 상세정보 단건 조회
+     * 4. 결제 상세정보 단건 조회 (paymentKey)
      */
 
     /**
@@ -166,12 +166,17 @@ public class PaymentController {
     }
 
     /**
-     * 4. paymentKey 로 결제 상세정보 단건 조회
+     * 4. 결제 상세정보 단건 조회 (paymentKey)
      *
      * @param memberUuid
      * @param paymentKey
      * @return
      */
+    @Operation(
+            summary = "결제 상세정보 단건 조회 (paymentKey)",
+            description = """
+                    """
+    )
     @GetMapping("/{paymentKey}")
     public BaseResponseEntity<GetPaymentDetailsResVo> getPaymentDetailsByPaymentKey(
             @RequestHeader("X-Member-UUID") String memberUuid,

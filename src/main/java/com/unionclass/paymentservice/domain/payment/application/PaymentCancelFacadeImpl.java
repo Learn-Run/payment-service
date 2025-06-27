@@ -2,7 +2,7 @@ package com.unionclass.paymentservice.domain.payment.application;
 
 import com.unionclass.paymentservice.domain.order.application.OrderService;
 import com.unionclass.paymentservice.domain.order.dto.in.UpdateOrderStatusReqDto;
-import com.unionclass.paymentservice.domain.payment.dto.GetCancelsDto;
+import com.unionclass.paymentservice.domain.payment.dto.CancelsDto;
 import com.unionclass.paymentservice.domain.payment.dto.in.CancelPaymentReqDto;
 import com.unionclass.paymentservice.domain.payment.dto.in.CreatePaymentCancelReqDto;
 import lombok.RequiredArgsConstructor;
@@ -18,11 +18,11 @@ public class PaymentCancelFacadeImpl implements PaymentCancelFacade {
     private final OrderService orderService;
 
     @Override
-    public void cancelPayment(CancelPaymentReqDto dto, GetCancelsDto getCancelsDto) {
+    public void cancelPayment(CancelPaymentReqDto dto, CancelsDto cancelsDto) {
 
-        paymentCancelService.createPaymentCancel(CreatePaymentCancelReqDto.of(dto, getCancelsDto));
+        paymentCancelService.createPaymentCancel(CreatePaymentCancelReqDto.of(dto, cancelsDto));
 
-        orderService.updateOrderStatus(UpdateOrderStatusReqDto.from(getCancelsDto.getOrderId()));
+        orderService.updateOrderStatus(UpdateOrderStatusReqDto.from(cancelsDto.getOrderId()));
 
         // 포인트 충전
 

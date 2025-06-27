@@ -1,10 +1,6 @@
 package com.unionclass.paymentservice.domain.payment.application;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.unionclass.paymentservice.common.config.TossPaymentConfig;
 import com.unionclass.paymentservice.common.exception.BaseException;
 import com.unionclass.paymentservice.common.exception.ErrorCode;
@@ -12,8 +8,8 @@ import com.unionclass.paymentservice.common.response.ResponseMessage;
 import com.unionclass.paymentservice.common.util.JsonMapper;
 import com.unionclass.paymentservice.common.util.NumericUuidGenerator;
 import com.unionclass.paymentservice.domain.order.application.OrderService;
-import com.unionclass.paymentservice.domain.payment.dto.GetCancelsDto;
-import com.unionclass.paymentservice.domain.payment.dto.GetFailureDto;
+import com.unionclass.paymentservice.domain.payment.dto.CancelsDto;
+import com.unionclass.paymentservice.domain.payment.dto.FailureDto;
 import com.unionclass.paymentservice.domain.payment.dto.in.*;
 import com.unionclass.paymentservice.domain.payment.dto.out.ConfirmPaymentResDto;
 import com.unionclass.paymentservice.domain.payment.dto.out.GetPaymentDetailsResDto;
@@ -25,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
@@ -107,8 +102,8 @@ public class PaymentServiceImpl implements PaymentService {
 
         } catch (HttpClientErrorException e) {
 
-            GetFailureDto failure = jsonMapper.readValue(
-                    e.getResponseBodyAsString(), GetFailureDto.class
+            FailureDto failure = jsonMapper.readValue(
+                    e.getResponseBodyAsString(), FailureDto.class
             );
 
             paymentFailureService.recordPaymentFailure(RecordPaymentFailureReqDto.of(dto, failure));
@@ -163,7 +158,7 @@ public class PaymentServiceImpl implements PaymentService {
                                             }
                                     ).getBody()
                             ).get("cancels"),
-                            GetCancelsDto.class
+                            CancelsDto.class
                     )
             );
 
@@ -181,23 +176,27 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public GetPaymentDetailsResDto getPaymentDetailsByPaymentKey(GetPaymentDetailsReqDto dto) {
 
-        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
-                tossPaymentConfig.getBaseUrl() + "/" + dto.getPaymentKey(),
-                HttpMethod.GET,
-                new HttpEntity<>(httpRequestBuilder.buildHeaders()),
-                new ParameterizedTypeReference<Map<String, Object>>() {
-                }
-        );
+        try {
 
+            return jsonMapper.convert(restTemplate.exchange(
+                    tossPaymentConfig.getBaseUrl() + "/" + dto.getPaymentKey(),
+                    HttpMethod.GET,
+                    new HttpEntity<>(httpRequestBuilder.buildHeaders()),
+                    new ParameterizedTypeReference<Map<String, Object>>() {
+                    }
+            ).getBody(), GetPaymentDetailsResDto.class);
 
+        } catch (HttpClientErrorException e) {
 
-        Map<String, Object> responseBody = response.getBody();
+            log.warn("toss 로 부터 결제 상세 정보 조회 실패 - message: {}", e.getMessage(), e);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new ParameterNamesModule());
-        objectMapper.registerModule(new Jdk8Module());
-        objectMapper.registerModule(new JavaTimeModule());
+            throw e;
 
-        return objectMapper.convertValue(responseBody, GetPaymentDetailsResDto.class);
+        } catch (Exception e) {
+
+            log.warn("결제 상세 정보 조회 실패 - paymentKey: {}, message: {}", dto.getPaymentKey(), e.getMessage(), e);
+
+            throw new BaseException(ErrorCode.FAILED_TO_GET_PAYMENT_DETAIL_INFO);
+        }
     }
 }
