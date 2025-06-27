@@ -18,9 +18,13 @@ public class PaymentCancelFacadeImpl implements PaymentCancelFacade {
     private final OrderService orderService;
 
     @Override
-    public void cancelAndUpdate(CancelPaymentReqDto dto, GetCancelsDto getCancelsDto) {
+    public void cancelPayment(CancelPaymentReqDto dto, GetCancelsDto getCancelsDto) {
 
         paymentCancelService.createPaymentCancel(CreatePaymentCancelReqDto.of(dto, getCancelsDto));
+
         orderService.updateOrderStatus(UpdateOrderStatusReqDto.from(getCancelsDto.getOrderId()));
+
+        // 포인트 충전
+
     }
 }

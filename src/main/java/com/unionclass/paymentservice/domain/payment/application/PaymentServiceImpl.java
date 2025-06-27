@@ -151,7 +151,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         try {
 
-            paymentCancelFacade.cancelAndUpdate(
+            paymentCancelFacade.cancelPayment(
                     dto,
                     jsonMapper.convert(
                             Objects.requireNonNull(
@@ -181,20 +181,15 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public GetPaymentDetailsResDto getPaymentDetailsByPaymentKey(GetPaymentDetailsReqDto dto) {
 
-        ResponseEntity<Map> response = restTemplate.exchange(
+        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
                 tossPaymentConfig.getBaseUrl() + "/" + dto.getPaymentKey(),
                 HttpMethod.GET,
                 new HttpEntity<>(httpRequestBuilder.buildHeaders()),
-                Map.class
+                new ParameterizedTypeReference<Map<String, Object>>() {
+                }
         );
 
-        if (!response.getStatusCode().is2xxSuccessful()) {
 
-            log.warn("결제 상세 정보 단건 조회 실패 - toss 와의 통신 실패");
-
-            throw new BaseException(ErrorCode.FAILED_TO_FIND_PAYMENT_DETAILS_BY_PAYMENT_KEY);
-
-        }
 
         Map<String, Object> responseBody = response.getBody();
 
