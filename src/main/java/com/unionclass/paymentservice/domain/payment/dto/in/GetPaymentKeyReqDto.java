@@ -6,19 +6,19 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class GetPaymentDetailsReqDto {
+public class GetPaymentKeyReqDto {
 
     private String memberUuid;
     private String paymentKey;
 
     @Builder
-    public GetPaymentDetailsReqDto(String memberUuid, String paymentKey) {
+    public GetPaymentKeyReqDto(String memberUuid, String paymentKey) {
         this.memberUuid = memberUuid;
         this.paymentKey = paymentKey;
     }
 
-    public static GetPaymentDetailsReqDto of(String memberUuid, String paymentKey) {
-        return GetPaymentDetailsReqDto.builder()
+    public static GetPaymentKeyReqDto of(String memberUuid, String paymentKey) {
+        return GetPaymentKeyReqDto.builder()
                 .memberUuid(memberUuid)
                 .paymentKey(paymentKey)
                 .build();

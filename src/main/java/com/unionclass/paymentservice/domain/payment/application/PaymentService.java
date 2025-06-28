@@ -15,6 +15,7 @@ public interface PaymentService {
 
     void cancelPayment(CancelPaymentReqDto dto);
 
-    GetPaymentDetailsResDto getPaymentDetailsByPaymentKey(GetPaymentDetailsReqDto dto);
+    GetPaymentDetailsResDto getPaymentDetailsByPaymentKey(GetPaymentKeyReqDto dto);
 
+    GetPaymentDetailsResDto getPaymentDetailsByOrderId(GetOrderIdReqDto dto);
 }

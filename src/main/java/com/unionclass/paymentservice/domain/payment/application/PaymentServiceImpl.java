@@ -174,17 +174,18 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public GetPaymentDetailsResDto getPaymentDetailsByPaymentKey(GetPaymentDetailsReqDto dto) {
+    public GetPaymentDetailsResDto getPaymentDetailsByPaymentKey(GetPaymentKeyReqDto dto) {
 
         try {
 
-            return jsonMapper.convert(restTemplate.exchange(
-                    tossPaymentConfig.getBaseUrl() + "/" + dto.getPaymentKey(),
-                    HttpMethod.GET,
-                    new HttpEntity<>(httpRequestBuilder.buildHeaders()),
-                    new ParameterizedTypeReference<Map<String, Object>>() {
-                    }
-            ).getBody(), GetPaymentDetailsResDto.class);
+            return jsonMapper.convert(
+                    restTemplate.exchange(
+                            tossPaymentConfig.getBaseUrl() + "/" + dto.getPaymentKey(),
+                            HttpMethod.GET,
+                            new HttpEntity<>(httpRequestBuilder.buildHeaders()),
+                            new ParameterizedTypeReference<Map<String, Object>>() {
+                            }
+                    ).getBody(), GetPaymentDetailsResDto.class);
 
         } catch (HttpClientErrorException e) {
 
@@ -195,6 +196,34 @@ public class PaymentServiceImpl implements PaymentService {
         } catch (Exception e) {
 
             log.warn("결제 상세 정보 조회 실패 - paymentKey: {}, message: {}", dto.getPaymentKey(), e.getMessage(), e);
+
+            throw new BaseException(ErrorCode.FAILED_TO_GET_PAYMENT_DETAILS);
+        }
+    }
+
+    @Override
+    public GetPaymentDetailsResDto getPaymentDetailsByOrderId(GetOrderIdReqDto dto) {
+
+        try {
+
+            return jsonMapper.convert(
+                    restTemplate.exchange(
+                            tossPaymentConfig.getBaseUrl() + "/orders" + dto.getOrderId(),
+                            HttpMethod.GET,
+                            new HttpEntity<>(httpRequestBuilder.buildHeaders()),
+                            new ParameterizedTypeReference<Map<String, Object>>() {
+                            }
+                    ).getBody(), GetPaymentDetailsResDto.class);
+
+        } catch (HttpClientErrorException e) {
+
+            log.warn("toss 로 부터 결제 상세 정보 조회 실패 - message: {}", e.getMessage(), e);
+
+            throw e;
+
+        } catch (Exception e) {
+
+            log.warn("결제 상세 정보 조회 실패 - orderId: {}, message: {}", dto.getOrderId(), e.getMessage(), e);
 
             throw new BaseException(ErrorCode.FAILED_TO_GET_PAYMENT_DETAILS);
         }
