@@ -196,7 +196,7 @@ public class PaymentServiceImpl implements PaymentService {
 
             log.warn("결제 상세 정보 조회 실패 - paymentKey: {}, message: {}", dto.getPaymentKey(), e.getMessage(), e);
 
-            throw new BaseException(ErrorCode.FAILED_TO_GET_PAYMENT_DETAIL_INFO);
+            throw new BaseException(ErrorCode.FAILED_TO_GET_PAYMENT_DETAILS);
         }
     }
 }
