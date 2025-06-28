@@ -245,27 +245,40 @@ public class PaymentController {
                         * receiptKey : 현금영수증의 키 값
                         * orderId : 결제 요청에서 상점이 직접 생성한 주문 번호
                         * orderName : 주문명
-                        * type :
-                        * issueNumber :
-                        * receiptUrl :
-                        * businessNumber :
-                        * transactionType :
-                        * amount :
-                        * taxFreeAmount :
-                        * issueStatus :
-                        * failure :
-                        * customerIdentityNumber :
-                        * requestedAt :
-                    - `discount`
-                    - `cancels`
+                        * type : 현금영수증의 종류 (소득공제, 지출증빙)
+                        * issueNumber : 현금영수증 발급 번호
+                        * receiptUrl : 발행된 현금영수증을 확인할 수 있는 주소
+                        * businessNumber : 현금영수증을 발급한 사업자 등록 번호
+                        * transactionType : 현금영수증 발급 종류 (CONFIRM, CANCEL)
+                        * amount : 현금영수증 처리된 금액
+                        * taxFreeAmount : 면세 처리된 금액
+                        * issueStatus : 현금영수증 발급 상태 (IN_PROGRESS, COMPLETED, FAILED)
+                        * failure : 실패 객체 (code, message)
+                        * customerIdentityNumber : 현금영수증 발급에 필요한 소비자 인증 수단
+                        * requestedAt : 현금영수증 발급 혹은 취소를 요청한 일시
+                    - `discount` : 카드사의 즉시 할인 프로모션 정보
+                        * amount : 할인 프로모션을 적용한 결제 금액
+                    - `cancels` : 결제 취소 이력
+                        * orderId : 주문명
+                        * cancelAmount : 결제를 취소한 금액
+                        * cancelStatus : 취소 상태 (DONE : 결제가 성공적으로 취소된 상태)
+                        * cancelReason : 결제를 취소한 이유
+                        * canceledAt : 결제 취소가 일어난 날짜와 시간 정보
                     - secret : 웹훅을 검증하는 최대 50자 값
                     - type : 결제 타입 (NORMAL, BILLING, BRANDPAY)
-                    - `easyPay`
+                    - `easyPay` : 간편 결제 정보
+                        * provider : 선택한 간편 결제사 코드
+                        * amount : 간편 결제 서비스에 등록된 계좌 혹은 현금성 포인트로 결제한 금액
+                        * discountAmount : 간편 결제 서비스의 적립 포인트나 쿠폰 등으로 즉시 할인된 금액
                     - country : 결제 국가
-                    - failure
+                    - `failure` : 결제 승인에 실패하면 응답으로 받는 에러 객체
+                        * code : 실패 코드
+                        * message : 실패 메시지
                     - isPartialCancelable : 부분 취소 가능 여부 (false 이면 전액 취소만 가능)
-                    - `receipt`
-                    - `checkout`
+                    - `receipt` : 발행된 영수증 정보
+                        * url : 구매자에게 제공할 수 있는 결제 수단별 영수증
+                    - `checkout` : 결제창 정보
+                        * url : 결제창이 열리는 주소
                     - totalAmount : 총 결제 금액
                     - balanceAmount : 취소할 수 있는 금액(잔고)
                     - suppliedAmount : 공급가액
