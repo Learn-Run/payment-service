@@ -9,6 +9,7 @@ import com.unionclass.paymentservice.domain.payment.vo.in.CancelPaymentReqVo;
 import com.unionclass.paymentservice.domain.payment.vo.in.ConfirmPaymentReqVo;
 import com.unionclass.paymentservice.domain.payment.vo.in.RequestPaymentReqVo;
 import com.unionclass.paymentservice.domain.payment.vo.out.GetPaymentDetailsResVo;
+import com.unionclass.paymentservice.domain.payment.vo.out.GetPaymentSummaryResVo;
 import com.unionclass.paymentservice.domain.payment.vo.out.RequestPaymentResVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,6 +32,8 @@ public class PaymentController {
      * 3. 결제 취소 (환불)
      * 4. 결제 상세 정보 단건 조회 (paymentKey)
      * 5. 결제 상세 정보 단건 조회 (orderId)
+     * 6. 결제 UUID 전체 페이지 조회
+     * 7. 결제 요약 정보 단건 조회
      */
 
     /**
@@ -432,6 +435,57 @@ public class PaymentController {
         return new BaseResponseEntity<>(
                 ResponseMessage.SUCCESS_GET_PAYMENT_DETAILS_BY_ORDER_ID.getMessage(),
                 paymentService.getPaymentDetailsByOrderId(GetOrderIdReqDto.of(memberUuid, orderId)).toVo()
+        );
+    }
+
+    /**
+     * 7. 결제 요약 정보 단건 조회
+     *
+     * @param memberUuid
+     * @param paymentUuid
+     * @return
+     */
+    @Operation(
+            summary = "결제 요약 정보 단건 조회",
+            description = """
+                    외부 API 호출 없이 내부 DB 에 저장된 데이터를 바탕으로 결제 요약 정보를 반환합니다.
+                    
+                    [요청 헤더]
+                    - X-Member-UUID : (String) 회원 UUID
+                    
+                    [요청 경로]
+                    - paymentUuid: (Long) 결제 UUID
+                    
+                    [처리 방식]
+                    - paymentUuid 를 기준으로 결제 정보를 조회
+                    - 결제 정보가 존재하지 않으면 예외 처리
+                    
+                    [응답 필드]
+                    - orderId : (String) 주문 ID
+                    - orderName : (String) 주문명
+                    - paymentKey : (String) 결제 고유 키
+                    - paymentMethod : (String) 결제 방법 (카드, 계좌이체, 휴대폰결제, 가상계좌)
+                    - paymentStatus : (String) 결제 처리 상태
+                    - totalAmount : 총 결제 금액
+                    - suppliedAmount : 공급가액
+                    - vat : 부가세
+                    - currency : 결제 통화 (KRW)
+                    - requestedAt : 결제 요청 일시
+                    - approvedAt : 결제 승인 일시
+                    
+                    [예외 상황]
+                    - FAILED_TO_FIND_PAYMENT_BY_PAYMENT_UUID : 해당 UUID 에 대한 결제 요약 정보를 찾을 수 없는 경우
+                    - FAILED_TO_GET_PAYMENT_SUMMARY : 결제 요약 정보 조회 중 알 수 없는 오류 발생
+                    """
+    )
+    @GetMapping("/{paymentUuid}/summary")
+    public BaseResponseEntity<GetPaymentSummaryResVo> getPaymentSummary(
+            @RequestHeader("X-Member-UUID") String memberUuid,
+            @PathVariable Long paymentUuid
+    ) {
+        return new BaseResponseEntity<>(
+                ResponseMessage.SUCCESS_GET_PAYMENT_SUMMARY.getMessage(),
+                paymentService.getPaymentSummary(GetPaymentSummaryReqDto.of(memberUuid, paymentUuid)).toVo()
         );
     }
 }

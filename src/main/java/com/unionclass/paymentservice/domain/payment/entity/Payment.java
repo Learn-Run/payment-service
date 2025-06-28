@@ -78,9 +78,6 @@ public class Payment extends BaseEntity {
     @Comment("결제 승인 일시")
     private ZonedDateTime approvedAt;
 
-    @Comment("취소일시")
-    private LocalDateTime canceledAt;
-
     @Comment("부분 취소 여부")
     private boolean isPartialCancelable;
 
@@ -89,7 +86,7 @@ public class Payment extends BaseEntity {
             Long id, Long uuid, String memberUuid, String orderId, String orderName, String paymentKey,
             Method method, Status status, Long totalAmount, Long suppliedAmount,
             Long vat, Long taxFreeAmount, String country, String currency, ZonedDateTime requestedAt,
-            ZonedDateTime approvedAt, LocalDateTime canceledAt, boolean isPartialCancelable
+            ZonedDateTime approvedAt, boolean isPartialCancelable
     ) {
         this.id = id;
         this.uuid = uuid;
@@ -107,12 +104,6 @@ public class Payment extends BaseEntity {
         this.currency = currency;
         this.requestedAt = requestedAt;
         this.approvedAt = approvedAt;
-        this.canceledAt = canceledAt;
         this.isPartialCancelable = isPartialCancelable;
-    }
-
-    public void cancel() {
-        this.status = Status.CANCELED;
-        this.canceledAt = LocalDateTime.now();
     }
 }

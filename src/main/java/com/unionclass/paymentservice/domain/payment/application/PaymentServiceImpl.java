@@ -13,7 +13,9 @@ import com.unionclass.paymentservice.domain.payment.dto.FailureDto;
 import com.unionclass.paymentservice.domain.payment.dto.in.*;
 import com.unionclass.paymentservice.domain.payment.dto.out.ConfirmPaymentResDto;
 import com.unionclass.paymentservice.domain.payment.dto.out.GetPaymentDetailsResDto;
+import com.unionclass.paymentservice.domain.payment.dto.out.GetPaymentSummaryResDto;
 import com.unionclass.paymentservice.domain.payment.dto.out.RequestPaymentResDto;
+import com.unionclass.paymentservice.domain.payment.entity.Payment;
 import com.unionclass.paymentservice.domain.payment.infrastructure.PaymentRepository;
 import com.unionclass.paymentservice.domain.payment.util.TossHttpRequestBuilder;
 import lombok.RequiredArgsConstructor;
@@ -38,13 +40,10 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
     private final TossHttpRequestBuilder httpRequestBuilder;
     private final PaymentFailureService paymentFailureService;
-    private final PaymentCancelService paymentCancelService;
     private final PaymentCancelFacade paymentCancelFacade;
-    private final OrderService orderService;
     private final JsonMapper jsonMapper;
 
     private final TossPaymentConfig tossPaymentConfig;
-    private final NumericUuidGenerator numericUuidGenerator;
     private final RestTemplate restTemplate;
     private final NumericUuidGenerator uuidGenerator;
 
@@ -189,13 +188,13 @@ public class PaymentServiceImpl implements PaymentService {
 
         } catch (HttpClientErrorException e) {
 
-            log.warn("toss 로 부터 결제 상세 정보 조회 실패 - message: {}", e.getMessage(), e);
+            log.warn("toss 로 부터 결제 상세 정보 단건 조회 실패 - message: {}", e.getMessage(), e);
 
             throw e;
 
         } catch (Exception e) {
 
-            log.warn("결제 상세 정보 조회 실패 - paymentKey: {}, message: {}", dto.getPaymentKey(), e.getMessage(), e);
+            log.warn("결제 상세 정보 단건 조회 실패 - paymentKey: {}, message: {}", dto.getPaymentKey(), e.getMessage(), e);
 
             throw new BaseException(ErrorCode.FAILED_TO_GET_PAYMENT_DETAILS);
         }
@@ -217,15 +216,35 @@ public class PaymentServiceImpl implements PaymentService {
 
         } catch (HttpClientErrorException e) {
 
-            log.warn("toss 로 부터 결제 상세 정보 조회 실패 - message: {}", e.getMessage(), e);
+            log.warn("toss 로 부터 결제 상세 정보 단건 조회 실패 - message: {}", e.getMessage(), e);
 
             throw e;
 
         } catch (Exception e) {
 
-            log.warn("결제 상세 정보 조회 실패 - orderId: {}, message: {}", dto.getOrderId(), e.getMessage(), e);
+            log.warn("결제 상세 정보 단건 조회 실패 - orderId: {}, message: {}", dto.getOrderId(), e.getMessage(), e);
 
             throw new BaseException(ErrorCode.FAILED_TO_GET_PAYMENT_DETAILS);
+        }
+    }
+
+    @Override
+    public GetPaymentSummaryResDto getPaymentSummary(GetPaymentSummaryReqDto dto) {
+
+        try {
+
+            return GetPaymentSummaryResDto.from(
+                    paymentRepository
+                            .findByUuid(dto.getPaymentUuid())
+                            .orElseThrow(() -> new BaseException(ErrorCode.FAILED_TO_FIND_PAYMENT_BY_PAYMENT_UUID))
+            );
+
+        } catch (Exception e) {
+
+            log.warn("결제 요약 정보 단건 조회 실패 - memberUuid: {}, paymentUuid: {}, message {}",
+                    dto.getMemberUuid(), dto.getPaymentUuid(), e.getMessage(), e);
+
+            throw new BaseException(ErrorCode.FAILED_TO_GET_PAYMENT_SUMMARY);
         }
     }
 }
