@@ -1,5 +1,6 @@
 package com.unionclass.paymentservice.domain.payment.dto.in;
 
+import com.unionclass.paymentservice.domain.order.dto.out.CreateOrderResDto;
 import com.unionclass.paymentservice.domain.payment.enums.Method;
 import com.unionclass.paymentservice.domain.payment.vo.in.RequestPaymentReqVo;
 import lombok.Builder;
@@ -32,6 +33,17 @@ public class RequestPaymentReqDto {
                 .orderName(requestPaymentReqVo.getOrderName())
                 .amount(requestPaymentReqVo.getAmount())
                 .method(requestPaymentReqVo.getPaymentMethod())
+                .build();
+    }
+
+    public static RequestPaymentReqDto of(CreateOrderResDto order, CreateOrderAndRequestPaymentReqDto payment) {
+
+        return RequestPaymentReqDto.builder()
+                .memberUuid(payment.getMemberUuid())
+                .orderId(order.getOrderId())
+                .orderName(payment.getOrderName())
+                .amount(payment.getPaymentAmount())
+                .method(payment.getPaymentMethod())
                 .build();
     }
 }

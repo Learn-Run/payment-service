@@ -3,6 +3,7 @@ package com.unionclass.paymentservice.domain.order.dto.in;
 import com.unionclass.paymentservice.domain.order.entity.Orders;
 import com.unionclass.paymentservice.domain.order.enums.OrderStatus;
 import com.unionclass.paymentservice.domain.order.vo.in.CreateOrderReqVo;
+import com.unionclass.paymentservice.domain.payment.dto.in.CreateOrderAndRequestPaymentReqDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,6 +33,16 @@ public class CreateOrderReqDto {
                 .amount(createOrderReqVo.getAmount())
                 .chargePoint(createOrderReqVo.getChargePoint())
                 .bonusPoint(createOrderReqVo.getBonusPoint())
+                .build();
+    }
+
+    public static CreateOrderReqDto of(CreateOrderAndRequestPaymentReqDto dto) {
+
+        return CreateOrderReqDto.builder()
+                .memberUuid(dto.getMemberUuid())
+                .amount(dto.getPaymentAmount())
+                .chargePoint(dto.getPoint())
+                .bonusPoint(dto.getBonusPoint())
                 .build();
     }
 

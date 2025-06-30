@@ -3,11 +3,13 @@ package com.unionclass.paymentservice.domain.payment.presentation;
 import com.unionclass.paymentservice.common.response.BaseResponseEntity;
 import com.unionclass.paymentservice.common.response.CursorPage;
 import com.unionclass.paymentservice.common.response.ResponseMessage;
+import com.unionclass.paymentservice.domain.payment.application.PaymentFacade;
 import com.unionclass.paymentservice.domain.payment.application.PaymentService;
 import com.unionclass.paymentservice.domain.payment.dto.in.*;
 import com.unionclass.paymentservice.domain.payment.dto.out.ConfirmPaymentResDto;
 import com.unionclass.paymentservice.domain.payment.vo.in.CancelPaymentReqVo;
 import com.unionclass.paymentservice.domain.payment.vo.in.ConfirmPaymentReqVo;
+import com.unionclass.paymentservice.domain.payment.vo.in.CreateOrderAndRequestPaymentReqVo;
 import com.unionclass.paymentservice.domain.payment.vo.in.RequestPaymentReqVo;
 import com.unionclass.paymentservice.domain.payment.vo.out.GetPaymentDetailsResVo;
 import com.unionclass.paymentservice.domain.payment.vo.out.GetPaymentSummaryResVo;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 public class PaymentController {
 
     private final PaymentService paymentService;
+    private final PaymentFacade paymentFacade;
 
     /**
      * /api/v1/payment
@@ -37,6 +40,7 @@ public class PaymentController {
      * 5. 결제 상세 정보 단건 조회 (orderId)
      * 6. 결제 UUID 전체 페이지 조회
      * 7. 결제 요약 정보 단건 조회
+     * 8. 주문 생성 및 결제 요청
      */
 
     /**
@@ -48,6 +52,7 @@ public class PaymentController {
      */
     @Operation(
             summary = "결제 요청",
+            hidden = true,
             description = """
                     사용자의 포인트 결제를 위한 초기 요청을 처리하는 API 입니다.
                     내부적으로 TossPayments 결제 API 를 호출하여 결제창 URL 을 생성하고 반환합니다.
@@ -500,6 +505,28 @@ public class PaymentController {
         return new BaseResponseEntity<>(
                 ResponseMessage.SUCCESS_GET_PAYMENT_SUMMARY.getMessage(),
                 paymentService.getPaymentSummary(GetPaymentSummaryReqDto.of(memberUuid, paymentUuid)).toVo()
+        );
+    }
+
+    @Operation(
+            summary = "주문 생성 및 결제 요청",
+            description = """
+                    [요청 필드]
+                    - orderName : 주문명
+                    - point : 포인트
+                    - bonusPoint : 보너스 포인트
+                    - paymentAmount : 결제 금액
+                    - paymentMethod : 카드 로 입력
+                    """
+    )
+    @PostMapping("/order/request")
+    public BaseResponseEntity<RequestPaymentResVo> createOrderAndRequestPayment(
+            @RequestHeader("X-Member-UUID") String memberUuid,
+            @RequestBody CreateOrderAndRequestPaymentReqVo vo
+    ) {
+        return new BaseResponseEntity<>(
+                ResponseMessage.SUCCESS_CREATE_ORDER_AND_REQUEST_PAYMENT.getMessage(),
+                paymentFacade.createOrderAndRequestPayment(CreateOrderAndRequestPaymentReqDto.of(memberUuid, vo)).toVo()
         );
     }
 }

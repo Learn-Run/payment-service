@@ -34,6 +34,7 @@ public class OrderController {
      */
     @Operation(
             summary = "주문 생성",
+            hidden = true,
             description = """
                     사용자가 포인트 충전을 위한 주문을 생성하는 API 입니다.
                     충전할 포인트와 보너스 포인트를 기반으로 주문명이 생성되며,

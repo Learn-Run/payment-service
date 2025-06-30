@@ -129,6 +129,7 @@ public enum ErrorCode {
     FAILED_TO_GET_PAYMENT_DETAILS(HttpStatus.INTERNAL_SERVER_ERROR, false, 8020, "결제 상세 정보 조회에 실패하였습니다."),
     FAILED_TO_FIND_PAYMENT_BY_PAYMENT_UUID(HttpStatus.INTERNAL_SERVER_ERROR, false, 8021, "결제 UUID 로 결제 조회하는데 실패하였습니다."),
     FAILED_TO_GET_PAYMENT_SUMMARY(HttpStatus.INTERNAL_SERVER_ERROR, false, 8022, "결제 요약 정보 단건 조회에 실패하였습니다."),
+    FAILED_TO_CREATE_ORDER_AND_REQUEST_PAYMENT(HttpStatus.INTERNAL_SERVER_ERROR, false, 8023, "주문 생성 및 결제 요청에 실패하였습니다."),
 
     // order : 8500 ~
     INVALID_ORDER_STATUS_VALUE(HttpStatus.BAD_REQUEST, false, 8500, "유효하지 않은 주문 상태입니다."),
