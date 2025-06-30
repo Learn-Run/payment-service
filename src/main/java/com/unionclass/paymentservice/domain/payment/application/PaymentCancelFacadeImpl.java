@@ -24,7 +24,7 @@ public class PaymentCancelFacadeImpl implements PaymentCancelFacade {
 
         orderService.updateOrderStatus(UpdateOrderStatusReqDto.from(cancelsDto.getOrderId()));
 
-        // 포인트 충전
+        // 포인트 차감
 
     }
 }

@@ -22,6 +22,8 @@ public enum ErrorCode {
      * 800 ~ 899 : internal server error / system, infra error
      */
     LOCK_ACQUISITION_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, false, 800, "락 획득에 실패하였습니다."),
+    INVALID_CURSOR_FORMAT(HttpStatus.BAD_REQUEST, false, 801, "유효하지 않은 커서 형식입니다."),
+    INVALID_CURSOR_DIRECTION_VALUE(HttpStatus.BAD_REQUEST, false, 802, "유효하지 않은 커서 방향 값입니다."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, false, 888, "서버에서 요청을 처리하지 못했습니다."),
 
     /**
@@ -132,7 +134,8 @@ public enum ErrorCode {
     INVALID_ORDER_STATUS_VALUE(HttpStatus.BAD_REQUEST, false, 8500, "유효하지 않은 주문 상태입니다."),
     FAILED_TO_CREATE_ORDER(HttpStatus.INTERNAL_SERVER_ERROR, false, 8501, "주문 생성에 실패하였습니다."),
     FAILED_TO_FIND_ORDER(HttpStatus.INTERNAL_SERVER_ERROR, false, 8502, "주문 조회에 실패하였습니다."),
-    FAILED_TO_UPDATE_ORDER_STATUS(HttpStatus.INTERNAL_SERVER_ERROR, false, 8503, "주문 상태 변경에 성공하였습니다."),
+    FAILED_TO_UPDATE_ORDER_STATUS(HttpStatus.INTERNAL_SERVER_ERROR, false, 8503, "주문 상태 변경에 실패하였습니다."),
+    FAILED_TO_GET_PAYMENT_UUID_LIST(HttpStatus.INTERNAL_SERVER_ERROR, false, 8504, "결제 UUID 리스트 조회에 실패하였습니다."),
     ;
 
     private final HttpStatus httpStatus;

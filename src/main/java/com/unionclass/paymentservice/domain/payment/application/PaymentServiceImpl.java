@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.unionclass.paymentservice.common.config.TossPaymentConfig;
 import com.unionclass.paymentservice.common.exception.BaseException;
 import com.unionclass.paymentservice.common.exception.ErrorCode;
+import com.unionclass.paymentservice.common.response.CursorPage;
 import com.unionclass.paymentservice.common.response.ResponseMessage;
 import com.unionclass.paymentservice.common.util.JsonMapper;
 import com.unionclass.paymentservice.common.util.NumericUuidGenerator;
@@ -11,10 +12,7 @@ import com.unionclass.paymentservice.domain.order.application.OrderService;
 import com.unionclass.paymentservice.domain.payment.dto.CancelsDto;
 import com.unionclass.paymentservice.domain.payment.dto.FailureDto;
 import com.unionclass.paymentservice.domain.payment.dto.in.*;
-import com.unionclass.paymentservice.domain.payment.dto.out.ConfirmPaymentResDto;
-import com.unionclass.paymentservice.domain.payment.dto.out.GetPaymentDetailsResDto;
-import com.unionclass.paymentservice.domain.payment.dto.out.GetPaymentSummaryResDto;
-import com.unionclass.paymentservice.domain.payment.dto.out.RequestPaymentResDto;
+import com.unionclass.paymentservice.domain.payment.dto.out.*;
 import com.unionclass.paymentservice.domain.payment.entity.Payment;
 import com.unionclass.paymentservice.domain.payment.infrastructure.PaymentRepository;
 import com.unionclass.paymentservice.domain.payment.util.TossHttpRequestBuilder;
@@ -245,6 +243,21 @@ public class PaymentServiceImpl implements PaymentService {
                     dto.getMemberUuid(), dto.getPaymentUuid(), e.getMessage(), e);
 
             throw new BaseException(ErrorCode.FAILED_TO_GET_PAYMENT_SUMMARY);
+        }
+    }
+
+    @Override
+    public CursorPage<GetPaymentUuidResDto> getAllPaymentUuids(CursorPageParamReqDto dto) {
+
+        try {
+
+            return paymentRepository.findPaymentUuidsByCursor(dto);
+
+        } catch (Exception e) {
+
+            log.warn("결제 UUID 리스트 조회 실패 - memberUuid: {}, message {}", dto.getMemberUuid(), e.getMessage(), e);
+
+            throw new BaseException(ErrorCode.FAILED_TO_GET_PAYMENT_UUID_LIST);
         }
     }
 }

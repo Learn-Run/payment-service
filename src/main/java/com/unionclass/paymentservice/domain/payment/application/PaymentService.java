@@ -1,10 +1,8 @@
 package com.unionclass.paymentservice.domain.payment.application;
 
+import com.unionclass.paymentservice.common.response.CursorPage;
 import com.unionclass.paymentservice.domain.payment.dto.in.*;
-import com.unionclass.paymentservice.domain.payment.dto.out.ConfirmPaymentResDto;
-import com.unionclass.paymentservice.domain.payment.dto.out.GetPaymentDetailsResDto;
-import com.unionclass.paymentservice.domain.payment.dto.out.GetPaymentSummaryResDto;
-import com.unionclass.paymentservice.domain.payment.dto.out.RequestPaymentResDto;
+import com.unionclass.paymentservice.domain.payment.dto.out.*;
 
 public interface PaymentService {
 
@@ -21,4 +19,6 @@ public interface PaymentService {
     GetPaymentDetailsResDto getPaymentDetailsByOrderId(GetOrderIdReqDto dto);
 
     GetPaymentSummaryResDto getPaymentSummary(GetPaymentSummaryReqDto dto);
+
+    CursorPage<GetPaymentUuidResDto> getAllPaymentUuids(CursorPageParamReqDto dto);
 }

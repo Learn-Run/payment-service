@@ -1,6 +1,7 @@
 package com.unionclass.paymentservice.domain.payment.presentation;
 
 import com.unionclass.paymentservice.common.response.BaseResponseEntity;
+import com.unionclass.paymentservice.common.response.CursorPage;
 import com.unionclass.paymentservice.common.response.ResponseMessage;
 import com.unionclass.paymentservice.domain.payment.application.PaymentService;
 import com.unionclass.paymentservice.domain.payment.dto.in.*;
@@ -10,10 +11,12 @@ import com.unionclass.paymentservice.domain.payment.vo.in.ConfirmPaymentReqVo;
 import com.unionclass.paymentservice.domain.payment.vo.in.RequestPaymentReqVo;
 import com.unionclass.paymentservice.domain.payment.vo.out.GetPaymentDetailsResVo;
 import com.unionclass.paymentservice.domain.payment.vo.out.GetPaymentSummaryResVo;
+import com.unionclass.paymentservice.domain.payment.vo.out.GetPaymentUuidResVo;
 import com.unionclass.paymentservice.domain.payment.vo.out.RequestPaymentResVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.query.SortDirection;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -436,6 +439,17 @@ public class PaymentController {
                 ResponseMessage.SUCCESS_GET_PAYMENT_DETAILS_BY_ORDER_ID.getMessage(),
                 paymentService.getPaymentDetailsByOrderId(GetOrderIdReqDto.of(memberUuid, orderId)).toVo()
         );
+    }
+
+    @GetMapping("/uuid/all")
+    public CursorPage<GetPaymentUuidResVo> getAllPaymentUuids(
+            @RequestHeader("X-Member-UUID") String memberUuid,
+            @RequestParam String cursor,
+            @RequestParam String direction,
+            @RequestParam(defaultValue = "8") int size
+    ) {
+        paymentService.getAllPaymentUuids(CursorPageParamReqDto.of(memberUuid, cursor, direction, size));
+        return null;
     }
 
     /**
