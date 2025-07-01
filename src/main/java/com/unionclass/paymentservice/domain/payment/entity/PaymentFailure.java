@@ -20,7 +20,7 @@ public class PaymentFailure extends BaseEntity {
     private Long uuid;
 
     @Comment("회원 UUID")
-    @Column(nullable = false, unique = true, length = 36)
+    @Column(nullable = false, length = 36)
     private String memberUuid;
 
     @Comment("결제 고유 키")
