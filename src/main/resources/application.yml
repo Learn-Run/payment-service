@@ -16,7 +16,7 @@ spring:
   application:
     name: payment-service
   profiles:
-    active: prod
+    active: dev
 
   jackson:
     serialization:
@@ -49,8 +49,8 @@ payment:
     client_key: ${TOSS_PAYMENT_CLIENT_KEY}
     secret_key: ${TOSS_PAYMENT_SECRET_KEY}
     base_url: ${TOSS_PAYMENT_BASE_URL}
-    success_url: ${TOSS_PAYMENT_SUCCESS_URL_PROD}
-    fail_url: ${TOSS_PAYMENT_FAIL_URL_PROD}
+    success_url: ${TOSS_PAYMENT_SUCCESS_URL}
+    fail_url: ${TOSS_PAYMENT_FAIL_URL}
 
 logging:
   level:
