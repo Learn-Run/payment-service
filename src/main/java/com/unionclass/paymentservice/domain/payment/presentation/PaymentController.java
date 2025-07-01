@@ -7,6 +7,7 @@ import com.unionclass.paymentservice.domain.payment.application.PaymentFacade;
 import com.unionclass.paymentservice.domain.payment.application.PaymentService;
 import com.unionclass.paymentservice.domain.payment.dto.in.*;
 import com.unionclass.paymentservice.domain.payment.dto.out.ConfirmPaymentResDto;
+import com.unionclass.paymentservice.domain.payment.dto.out.GetPaymentUuidResDto;
 import com.unionclass.paymentservice.domain.payment.vo.in.CancelPaymentReqVo;
 import com.unionclass.paymentservice.domain.payment.vo.in.ConfirmPaymentReqVo;
 import com.unionclass.paymentservice.domain.payment.vo.in.CreateOrderAndRequestPaymentReqVo;
@@ -444,14 +445,16 @@ public class PaymentController {
     }
 
     @GetMapping("/uuid/all")
-    public CursorPage<GetPaymentUuidResVo> getAllPaymentUuids(
+    public BaseResponseEntity<CursorPage<GetPaymentUuidResVo>> getAllPaymentUuids(
             @RequestHeader("X-Member-UUID") String memberUuid,
             @RequestParam String cursor,
             @RequestParam String direction,
             @RequestParam(defaultValue = "8") int size
     ) {
-        paymentService.getAllPaymentUuids(CursorPageParamReqDto.of(memberUuid, cursor, direction, size));
-        return null;
+        return new BaseResponseEntity<>(
+                ResponseMessage.SUCCESS_GET_ALL_PAYMENT_UUID.getMessage(),
+                paymentService.getAllPaymentUuids(CursorPageParamReqDto.of(memberUuid, cursor, direction, size)).map(GetPaymentUuidResDto::toVo)
+        );
     }
 
     /**

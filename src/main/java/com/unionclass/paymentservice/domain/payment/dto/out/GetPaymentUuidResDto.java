@@ -1,5 +1,6 @@
 package com.unionclass.paymentservice.domain.payment.dto.out;
 
+import com.unionclass.paymentservice.domain.payment.vo.out.GetPaymentUuidResVo;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,5 +19,13 @@ public class GetPaymentUuidResDto {
     public GetPaymentUuidResDto(LocalDateTime createdAt, Long paymentUuid) {
         this.createdAt = createdAt;
         this.paymentUuid = paymentUuid;
+    }
+
+    public GetPaymentUuidResVo toVo() {
+
+        return GetPaymentUuidResVo.builder()
+                .createdAt(createdAt)
+                .paymentUuid(paymentUuid)
+                .build();
     }
 }
