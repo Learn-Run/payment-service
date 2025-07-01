@@ -1,7 +1,5 @@
 package com.unionclass.paymentservice.domain.payment.application;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.unionclass.paymentservice.common.config.TossPaymentConfig;
 import com.unionclass.paymentservice.common.exception.BaseException;
 import com.unionclass.paymentservice.common.exception.ErrorCode;
 import com.unionclass.paymentservice.common.kafka.event.PaymentCreatedEvent;
@@ -11,25 +9,18 @@ import com.unionclass.paymentservice.common.response.ResponseMessage;
 import com.unionclass.paymentservice.common.util.JsonMapper;
 import com.unionclass.paymentservice.common.util.NumericUuidGenerator;
 import com.unionclass.paymentservice.domain.order.application.OrderService;
+import com.unionclass.paymentservice.domain.payment.application.port.PaymentGateway;
 import com.unionclass.paymentservice.domain.payment.dto.CancelsDto;
 import com.unionclass.paymentservice.domain.payment.dto.FailureDto;
 import com.unionclass.paymentservice.domain.payment.dto.in.*;
 import com.unionclass.paymentservice.domain.payment.dto.out.*;
 import com.unionclass.paymentservice.domain.payment.entity.Payment;
 import com.unionclass.paymentservice.domain.payment.infrastructure.PaymentRepository;
-import com.unionclass.paymentservice.domain.payment.util.TossHttpRequestBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.Map;
-import java.util.Objects;
 
 @Slf4j
 @Service
@@ -38,13 +29,10 @@ import java.util.Objects;
 public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
-    private final TossHttpRequestBuilder httpRequestBuilder;
+    private final PaymentGateway paymentGateway;
     private final PaymentFailureService paymentFailureService;
     private final PaymentCancelFacade paymentCancelFacade;
     private final JsonMapper jsonMapper;
-
-    private final TossPaymentConfig tossPaymentConfig;
-    private final RestTemplate restTemplate;
     private final NumericUuidGenerator uuidGenerator;
 
     @Transactional
@@ -53,20 +41,9 @@ public class PaymentServiceImpl implements PaymentService {
 
         try {
 
-            return RequestPaymentResDto.from(
-                    jsonMapper.convert(
-                                    Objects.requireNonNull(
-                                            restTemplate.exchange(
-                                                    tossPaymentConfig.getBaseUrl(),
-                                                    HttpMethod.POST,
-                                                    httpRequestBuilder.buildEntity(httpRequestBuilder.buildRequestPaymentPayload(dto)),
-                                                    new ParameterizedTypeReference<Map<String, Object>>() {
-                                                    }
-                                            ).getBody()
-                                    ).get("checkout"), new TypeReference<Map<String, Object>>() {
-                                    })
-                            .get("url")
-                            .toString());
+            String checkoutUrl = paymentGateway.requestPayment(dto);
+
+            return RequestPaymentResDto.from(checkoutUrl);
 
         } catch (Exception e) {
 
@@ -83,16 +60,11 @@ public class PaymentServiceImpl implements PaymentService {
 
         try {
 
+            Object response = paymentGateway.confirmPayment(dto);
+
             createPayment(
-                    jsonMapper.convert(
-                            restTemplate.exchange(
-                                    tossPaymentConfig.getBaseUrl() + "/confirm",
-                                    HttpMethod.POST,
-                                    httpRequestBuilder.buildEntity(httpRequestBuilder.buildConfirmPaymentPayload(dto)),
-                                    new ParameterizedTypeReference<Map<String, Object>>() {
-                                    }
-                            ).getBody(), CreatePaymentReqDto.class
-                    ), dto.getMemberUuid()
+                    jsonMapper.convert(response, CreatePaymentReqDto.class),
+                    dto.getMemberUuid()
             );
 
             log.info("결제 승인 성공 - paymentKey: {}", dto.getPaymentKey());
@@ -145,20 +117,11 @@ public class PaymentServiceImpl implements PaymentService {
 
         try {
 
+            Object cancelsResponse = paymentGateway.cancelPayment(dto);
+
             paymentCancelFacade.cancelPayment(
                     dto,
-                    jsonMapper.convert(
-                            Objects.requireNonNull(
-                                    restTemplate.exchange(
-                                            tossPaymentConfig.getBaseUrl() + "/" + dto.getPaymentKey() + "/cancel",
-                                            HttpMethod.POST,
-                                            httpRequestBuilder.buildEntity(httpRequestBuilder.buildCancelPaymentPayload(dto)),
-                                            new ParameterizedTypeReference<Map<String, Object>>() {
-                                            }
-                                    ).getBody()
-                            ).get("cancels"),
-                            CancelsDto.class
-                    )
+                    jsonMapper.convert(cancelsResponse, CancelsDto.class)
             );
 
             log.info("결제 취소 성공 - paymentKey: {}", dto.getPaymentKey());
@@ -177,14 +140,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         try {
 
-            return jsonMapper.convert(
-                    restTemplate.exchange(
-                            tossPaymentConfig.getBaseUrl() + "/" + dto.getPaymentKey(),
-                            HttpMethod.GET,
-                            new HttpEntity<>(httpRequestBuilder.buildHeaders()),
-                            new ParameterizedTypeReference<Map<String, Object>>() {
-                            }
-                    ).getBody(), GetPaymentDetailsResDto.class);
+            return paymentGateway.getPaymentDetailsByPaymentKey(dto.getPaymentKey());
 
         } catch (HttpClientErrorException e) {
 
@@ -205,14 +161,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         try {
 
-            return jsonMapper.convert(
-                    restTemplate.exchange(
-                            tossPaymentConfig.getBaseUrl() + "/orders" + dto.getOrderId(),
-                            HttpMethod.GET,
-                            new HttpEntity<>(httpRequestBuilder.buildHeaders()),
-                            new ParameterizedTypeReference<Map<String, Object>>() {
-                            }
-                    ).getBody(), GetPaymentDetailsResDto.class);
+            return paymentGateway.getPaymentDetailsByOrderId(dto.getOrderId());
 
         } catch (HttpClientErrorException e) {
 
