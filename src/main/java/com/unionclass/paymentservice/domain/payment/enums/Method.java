@@ -14,7 +14,11 @@ public enum Method {
     CARD("카드"),
     BANK_TRANSFER("계좌이체"),
     MOBILE("휴대폰"),
-    VIRTUAL_ACCOUNT("가상계좌")
+    VIRTUAL_ACCOUNT("가상계좌"),
+    SIMPLE_PAYMENT("간편결제"),
+    CULTURE_GIFT_CERTIFICATE("문화상품권"),
+    BOOK_CULTURE_GIFT_CERTIFICATE("도서문화상품권"),
+    GAME_CULTURE_GIFT_CERTIFICATE("게임문화상품권"),
     ;
 
     private final String method;
