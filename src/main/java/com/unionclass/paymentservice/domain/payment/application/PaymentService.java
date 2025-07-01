@@ -8,7 +8,7 @@ public interface PaymentService {
 
     RequestPaymentResDto requestPayment(RequestPaymentReqDto dto);
 
-    ConfirmPaymentResDto confirmPayment(ConfirmPaymentReqDto dto);
+    void confirmPayment(ConfirmPaymentReqDto dto);
 
     void createPayment(CreatePaymentReqDto dto, String memberUuid);
 

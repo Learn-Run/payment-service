@@ -79,7 +79,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Transactional
     @Override
-    public ConfirmPaymentResDto confirmPayment(ConfirmPaymentReqDto dto) {
+    public void confirmPayment(ConfirmPaymentReqDto dto) {
 
         try {
 
@@ -97,7 +97,7 @@ public class PaymentServiceImpl implements PaymentService {
 
             log.info("결제 승인 성공 - paymentKey: {}", dto.getPaymentKey());
 
-            return ConfirmPaymentResDto.of(200, ResponseMessage.SUCCESS_CONFIRM_PAYMENT.getMessage());
+//            return ConfirmPaymentResDto.of(200, ResponseMessage.SUCCESS_CONFIRM_PAYMENT.getMessage());
 
         } catch (HttpClientErrorException e) {
 
@@ -109,7 +109,8 @@ public class PaymentServiceImpl implements PaymentService {
 
             log.info("결제 승인 실패 - paymentKey: {}, message: {}", dto.getPaymentKey(), e.getMessage(), e);
 
-            return ConfirmPaymentResDto.of(failure);
+            throw new BaseException(ErrorCode.FAILED_TO_CONFIRM_PAYMENT);
+//            return ConfirmPaymentResDto.of(failure);
 
         } catch (Exception e) {
 

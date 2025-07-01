@@ -122,11 +122,9 @@ public class PaymentController {
             @RequestHeader("X-Member-UUID") String memberUuid,
             @RequestBody ConfirmPaymentReqVo confirmPaymentReqVo
     ) {
-        ConfirmPaymentResDto dto = paymentFacade.confirmPayment(
-                ConfirmPaymentReqDto.of(memberUuid, confirmPaymentReqVo)
-        );
+        paymentFacade.confirmPayment(ConfirmPaymentReqDto.of(memberUuid, confirmPaymentReqVo));
 
-        return new BaseResponseEntity<>(dto.getCode(), dto.getMessage());
+        return new BaseResponseEntity<>(ResponseMessage.SUCCESS_CONFIRM_PAYMENT.getMessage());
     }
 
     /**
