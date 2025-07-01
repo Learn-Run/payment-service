@@ -11,6 +11,9 @@ spring:
       max-lifetime: 900000
       connection-timeout: 10000
 
+  kafka:
+    bootstrap-servers: ${EC2_INFRA_HOST}:10000,${EC2_INFRA_HOST}:10001,${EC2_INFRA_HOST}:10002
+
   data:
     redis:
       host: ${EC2_INFRA_HOST}

@@ -11,6 +11,9 @@ spring:
       max-lifetime: 900000
       connection-timeout: 10000
 
+  kafka:
+    bootstrap-servers: localhost:10000,localhost:10001,localhost:10002
+
   data:
     redis:
       host: localhost

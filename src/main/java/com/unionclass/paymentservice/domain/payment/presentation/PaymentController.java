@@ -18,7 +18,6 @@ import com.unionclass.paymentservice.domain.payment.vo.out.RequestPaymentResVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.query.SortDirection;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -123,7 +122,7 @@ public class PaymentController {
             @RequestHeader("X-Member-UUID") String memberUuid,
             @RequestBody ConfirmPaymentReqVo confirmPaymentReqVo
     ) {
-        ConfirmPaymentResDto dto = paymentService.confirmPayment(
+        ConfirmPaymentResDto dto = paymentFacade.confirmPayment(
                 ConfirmPaymentReqDto.of(memberUuid, confirmPaymentReqVo)
         );
 
@@ -529,4 +528,5 @@ public class PaymentController {
                 paymentFacade.createOrderAndRequestPayment(CreateOrderAndRequestPaymentReqDto.of(memberUuid, vo)).toVo()
         );
     }
+
 }

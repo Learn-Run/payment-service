@@ -32,6 +32,18 @@ spring:
         show_sql: true
         format_sql: true
 
+  kafka:
+    producer:
+      key-deserializer: org.apache.kafka.common.serialization.StringSerializer
+      value-deserializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: 1
+      retries: 3
+      batch-size: 16384
+      linger-ms: 1
+      buffer-memory: 33554432
+    topics:
+      payment-created: payment-created
+
 payment:
   toss:
     client_key: ${TOSS_PAYMENT_CLIENT_KEY}

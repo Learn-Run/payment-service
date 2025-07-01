@@ -6,16 +6,14 @@ import com.unionclass.paymentservice.common.util.StringUuidGenerator;
 import com.unionclass.paymentservice.domain.order.dto.in.CreateOrderReqDto;
 import com.unionclass.paymentservice.domain.order.dto.in.UpdateOrderStatusReqDto;
 import com.unionclass.paymentservice.domain.order.dto.out.CreateOrderResDto;
+import com.unionclass.paymentservice.domain.order.dto.out.GetMemberPointResDto;
 import com.unionclass.paymentservice.domain.order.entity.Orders;
-import com.unionclass.paymentservice.domain.order.enums.OrderStatus;
 import com.unionclass.paymentservice.domain.order.infrastructure.OrderRepository;
 import com.unionclass.paymentservice.domain.order.util.OrderNameTemplateProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -24,6 +22,7 @@ import java.util.Optional;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
+
     private final OrderNameTemplateProvider templateProvider;
     private final StringUuidGenerator uuidGenerator;
 
@@ -79,5 +78,12 @@ public class OrderServiceImpl implements OrderService {
 
             throw new BaseException(ErrorCode.FAILED_TO_UPDATE_ORDER_STATUS);
         }
+    }
+
+    @Override
+    public GetMemberPointResDto getMemberPointInfo(String orderId) {
+
+        return GetMemberPointResDto.from(orderRepository.findById(orderId)
+                .orElseThrow(() -> new BaseException(ErrorCode.FAILED_TO_FIND_ORDER)));
     }
 }
