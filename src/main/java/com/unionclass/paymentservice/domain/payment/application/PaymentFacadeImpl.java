@@ -49,11 +49,11 @@ public class PaymentFacadeImpl implements PaymentFacade {
 
     @Transactional
     @Override
-    public ConfirmPaymentResDto confirmPayment(ConfirmPaymentReqDto dto) {
+    public void confirmPayment(ConfirmPaymentReqDto dto) {
 
         try {
 
-            ConfirmPaymentResDto confirmPaymentResDto = paymentService.confirmPayment(dto);
+            paymentService.confirmPayment(dto);
 
             kafkaProducer.sendPaymentCreatedEvent(
                     PaymentCreatedEvent.from(
@@ -65,8 +65,6 @@ public class PaymentFacadeImpl implements PaymentFacade {
                     "결제 승인, 결제 정보 저장 및 결제 생성 이벤트 생성 성공 - memberUuid: {}, paymentKey: {}, orderId: {}",
                     dto.getMemberUuid(), dto.getPaymentKey(), dto.getOrderId()
             );
-
-            return confirmPaymentResDto;
 
         } catch (Exception e) {
 

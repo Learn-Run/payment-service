@@ -9,5 +9,5 @@ public interface PaymentFacade {
 
     RequestPaymentResDto createOrderAndRequestPayment(CreateOrderAndRequestPaymentReqDto dto);
 
-    ConfirmPaymentResDto confirmPayment(ConfirmPaymentReqDto dto);
+    void confirmPayment(ConfirmPaymentReqDto dto);
 }
