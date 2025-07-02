@@ -43,7 +43,9 @@ public class PaymentCustomRepositoryImpl implements PaymentCustomRepository {
                                 payment.status,
                                 payment.totalAmount,
                                 payment.requestedAt,
-                                payment.approvedAt
+                                payment.approvedAt,
+                                payment.createdAt,
+                                payment.uuid
                         ))
                 .from(payment)
                 .where(predicate)
