@@ -37,8 +37,8 @@ public class PaymentCustomRepositoryImpl implements PaymentCustomRepository {
                 .select(
                         Projections.constructor(
                                 GetPaymentUuidResDto.class,
-                                qPayment.uuid,
-                                qPayment.createdAt
+                                qPayment.createdAt,
+                                qPayment.uuid
                         ))
                 .from(qPayment)
                 .where(predicate)
