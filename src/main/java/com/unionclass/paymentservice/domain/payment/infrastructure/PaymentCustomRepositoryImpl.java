@@ -6,15 +6,14 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.unionclass.paymentservice.common.response.CursorPage;
 import com.unionclass.paymentservice.common.util.CursorEncoder;
 import com.unionclass.paymentservice.domain.payment.dto.in.CursorPageParamReqDto;
+import com.unionclass.paymentservice.domain.payment.dto.out.GetPaymentInfoResDto;
 import com.unionclass.paymentservice.domain.payment.dto.out.GetPaymentUuidResDto;
 import com.unionclass.paymentservice.domain.payment.entity.QPayment;
-import com.unionclass.paymentservice.domain.payment.enums.CursorDirection;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 
 @Slf4j
@@ -26,25 +25,31 @@ public class PaymentCustomRepositoryImpl implements PaymentCustomRepository {
 
     private final JPAQueryFactory queryFactory;
 
-    QPayment qPayment = QPayment.payment;
+    QPayment payment = QPayment.payment;
 
     @Override
-    public CursorPage<GetPaymentUuidResDto> findPaymentUuidsByCursor(CursorPageParamReqDto dto) {
+    public CursorPage<GetPaymentInfoResDto> findPaymentUuidsByCursor(CursorPageParamReqDto dto) {
 
         BooleanExpression predicate = buildPredicate(dto);
 
-        List<GetPaymentUuidResDto> results = queryFactory
+        List<GetPaymentInfoResDto> results = queryFactory
                 .select(
                         Projections.constructor(
-                                GetPaymentUuidResDto.class,
-                                qPayment.createdAt,
-                                qPayment.uuid
+                                GetPaymentInfoResDto.class,
+                                payment.orderId,
+                                payment.orderName,
+                                payment.paymentKey,
+                                payment.method,
+                                payment.status,
+                                payment.totalAmount,
+                                payment.requestedAt,
+                                payment.approvedAt
                         ))
-                .from(qPayment)
+                .from(payment)
                 .where(predicate)
                 .orderBy(
-                        qPayment.createdAt.desc(),
-                        qPayment.uuid.desc())
+                        payment.createdAt.desc(),
+                        payment.uuid.desc())
                 .limit(dto.getSize() + 1)
                 .fetch();
 
@@ -66,7 +71,7 @@ public class PaymentCustomRepositoryImpl implements PaymentCustomRepository {
 
     private BooleanExpression buildPredicate(CursorPageParamReqDto dto) {
 
-        BooleanExpression predicate = qPayment.memberUuid.eq(dto.getMemberUuid());
+        BooleanExpression predicate = payment.memberUuid.eq(dto.getMemberUuid());
 
         if (dto.getCreatedAtCursor() != null && dto.getUuidCursor() != null) {
 
@@ -74,22 +79,22 @@ public class PaymentCustomRepositoryImpl implements PaymentCustomRepository {
             Long uuid = dto.getUuidCursor();
 
             predicate = predicate.and(
-                    qPayment.createdAt
+                    payment.createdAt
                             .lt(createdAt)
-                            .or(qPayment.createdAt
+                            .or(payment.createdAt
                                     .eq(createdAt)
-                                    .and(qPayment.uuid.lt(uuid)))
+                                    .and(payment.uuid.lt(uuid)))
             );
         }
 
         // startDate 조건 (inclusive)
         if (dto.getStartDate() != null) {
-            predicate = predicate.and(qPayment.createdAt.goe(dto.getStartDate().atStartOfDay()));
+            predicate = predicate.and(payment.createdAt.goe(dto.getStartDate().atStartOfDay()));
         }
 
         // endDate 조건 (inclusive)
         if (dto.getEndDate() != null) {
-            predicate = predicate.and(qPayment.createdAt.loe(dto.getEndDate().atTime(23, 59, 59)));
+            predicate = predicate.and(payment.createdAt.loe(dto.getEndDate().atTime(23, 59, 59)));
         }
 
         return predicate;

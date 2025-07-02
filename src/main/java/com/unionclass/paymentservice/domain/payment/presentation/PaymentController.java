@@ -7,15 +7,13 @@ import com.unionclass.paymentservice.domain.payment.application.PaymentFacade;
 import com.unionclass.paymentservice.domain.payment.application.PaymentService;
 import com.unionclass.paymentservice.domain.payment.dto.in.*;
 import com.unionclass.paymentservice.domain.payment.dto.out.ConfirmPaymentResDto;
+import com.unionclass.paymentservice.domain.payment.dto.out.GetPaymentInfoResDto;
 import com.unionclass.paymentservice.domain.payment.dto.out.GetPaymentUuidResDto;
 import com.unionclass.paymentservice.domain.payment.vo.in.CancelPaymentReqVo;
 import com.unionclass.paymentservice.domain.payment.vo.in.ConfirmPaymentReqVo;
 import com.unionclass.paymentservice.domain.payment.vo.in.CreateOrderAndRequestPaymentReqVo;
 import com.unionclass.paymentservice.domain.payment.vo.in.RequestPaymentReqVo;
-import com.unionclass.paymentservice.domain.payment.vo.out.GetPaymentDetailsResVo;
-import com.unionclass.paymentservice.domain.payment.vo.out.GetPaymentSummaryResVo;
-import com.unionclass.paymentservice.domain.payment.vo.out.GetPaymentUuidResVo;
-import com.unionclass.paymentservice.domain.payment.vo.out.RequestPaymentResVo;
+import com.unionclass.paymentservice.domain.payment.vo.out.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -447,8 +445,8 @@ public class PaymentController {
         );
     }
 
-    @GetMapping("/uuid/all")
-    public BaseResponseEntity<CursorPage<GetPaymentUuidResVo>> getAllPaymentUuids(
+    @GetMapping("/info/all")
+    public BaseResponseEntity<CursorPage<GetPaymentInfoResVo>> getAllPaymentUuids(
             @RequestHeader("X-Member-UUID") String memberUuid,
             @RequestParam(required = false) String cursor,
 //            @RequestParam String direction,
@@ -463,7 +461,7 @@ public class PaymentController {
                                 .of(
                                 memberUuid, cursor, size, startDate, endDate)
                         )
-                        .map(GetPaymentUuidResDto::toVo)
+                        .map(GetPaymentInfoResDto::toVo)
         );
     }
 

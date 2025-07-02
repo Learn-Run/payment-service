@@ -20,5 +20,5 @@ public interface PaymentService {
 
     GetPaymentSummaryResDto getPaymentSummary(GetPaymentSummaryReqDto dto);
 
-    CursorPage<GetPaymentUuidResDto> getAllPaymentUuids(CursorPageParamReqDto dto);
+    CursorPage<GetPaymentInfoResDto> getAllPaymentUuids(CursorPageParamReqDto dto);
 }

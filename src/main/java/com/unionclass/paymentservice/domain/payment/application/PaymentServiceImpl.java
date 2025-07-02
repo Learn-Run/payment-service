@@ -10,10 +10,7 @@ import com.unionclass.paymentservice.common.util.NumericUuidGenerator;
 import com.unionclass.paymentservice.domain.payment.dto.CancelsDto;
 import com.unionclass.paymentservice.domain.payment.dto.FailureDto;
 import com.unionclass.paymentservice.domain.payment.dto.in.*;
-import com.unionclass.paymentservice.domain.payment.dto.out.GetPaymentDetailsResDto;
-import com.unionclass.paymentservice.domain.payment.dto.out.GetPaymentSummaryResDto;
-import com.unionclass.paymentservice.domain.payment.dto.out.GetPaymentUuidResDto;
-import com.unionclass.paymentservice.domain.payment.dto.out.RequestPaymentResDto;
+import com.unionclass.paymentservice.domain.payment.dto.out.*;
 import com.unionclass.paymentservice.domain.payment.infrastructure.PaymentRepository;
 import com.unionclass.paymentservice.domain.payment.util.TossHttpRequestBuilder;
 import lombok.RequiredArgsConstructor;
@@ -81,9 +78,6 @@ public class PaymentServiceImpl implements PaymentService {
     public void confirmPayment(ConfirmPaymentReqDto dto) {
 
         try {
-            HttpHeaders headers = tossPaymentConfig.getHeaders();
-
-
 
             createPayment(
                     jsonMapper.convert(
@@ -252,7 +246,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public CursorPage<GetPaymentUuidResDto> getAllPaymentUuids(CursorPageParamReqDto dto) {
+    public CursorPage<GetPaymentInfoResDto> getAllPaymentUuids(CursorPageParamReqDto dto) {
 
         try {
 
