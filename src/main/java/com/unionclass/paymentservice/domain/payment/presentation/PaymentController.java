@@ -19,7 +19,10 @@ import com.unionclass.paymentservice.domain.payment.vo.out.RequestPaymentResVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 @RestController
 @RequiredArgsConstructor
@@ -448,12 +451,19 @@ public class PaymentController {
     public BaseResponseEntity<CursorPage<GetPaymentUuidResVo>> getAllPaymentUuids(
             @RequestHeader("X-Member-UUID") String memberUuid,
             @RequestParam String cursor,
-            @RequestParam String direction,
-            @RequestParam(defaultValue = "8") int size
+//            @RequestParam String direction,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
     ) {
         return new BaseResponseEntity<>(
                 ResponseMessage.SUCCESS_GET_ALL_PAYMENT_UUID.getMessage(),
-                paymentService.getAllPaymentUuids(CursorPageParamReqDto.of(memberUuid, cursor, direction, size)).map(GetPaymentUuidResDto::toVo)
+                paymentService.getAllPaymentUuids(
+                        CursorPageParamReqDto
+                                .of(
+                                memberUuid, cursor, size, startDate, endDate)
+                        )
+                        .map(GetPaymentUuidResDto::toVo)
         );
     }
 

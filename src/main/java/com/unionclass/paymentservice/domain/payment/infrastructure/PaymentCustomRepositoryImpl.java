@@ -82,6 +82,16 @@ public class PaymentCustomRepositoryImpl implements PaymentCustomRepository {
             );
         }
 
+        // startDate 조건 (inclusive)
+        if (dto.getStartDate() != null) {
+            predicate = predicate.and(qPayment.createdAt.goe(dto.getStartDate().atStartOfDay()));
+        }
+
+        // endDate 조건 (inclusive)
+        if (dto.getEndDate() != null) {
+            predicate = predicate.and(qPayment.createdAt.loe(dto.getEndDate().atTime(23, 59, 59)));
+        }
+
         return predicate;
     }
 }
