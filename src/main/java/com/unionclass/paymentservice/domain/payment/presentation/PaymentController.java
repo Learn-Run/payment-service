@@ -450,7 +450,7 @@ public class PaymentController {
     @GetMapping("/uuid/all")
     public BaseResponseEntity<CursorPage<GetPaymentUuidResVo>> getAllPaymentUuids(
             @RequestHeader("X-Member-UUID") String memberUuid,
-            @RequestParam String cursor,
+            @RequestParam(required = false) String cursor,
 //            @RequestParam String direction,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
